@@ -7,7 +7,7 @@ import juegos.base.Movimiento;
 import juegos.base._Juego;
 
 public class SquareChess extends _Juego {
-	public static Juego JUEGO = new SquareChess(7,7, "Blancas", "Negras");
+	public static Juego JUEGO = new SquareChess(7,8, "Blancas", "Negras");
 	
 	private final int ancho;
 	
@@ -116,8 +116,7 @@ public class SquareChess extends _Juego {
 		}
 		@Override
 		public Double resultado(Jugador jugador) {
-			// TODO Auto-generated method stub
-			return null;
+			return 0.0;
 		}
 
 		@Override
@@ -131,7 +130,7 @@ public class SquareChess extends _Juego {
 			if (celdasVacias() != 0)
 				return new EstadoInitSqChess(this.turno + 1, tableroSig);
 			else
-				return new EstadoRemoverSqChess(this.turno + 1, tableroSig);
+				return new EstadoRemoverSqChess(this.turno + 1, tableroSig, 0);
 		}
 		
 		public int cuadrados(Jugador jugador) {
@@ -160,7 +159,9 @@ public class SquareChess extends _Juego {
 		
 		private final int[] removerIniciales;
 		
-		public EstadoRemoverSqChess(int turno, int[][] tablero)
+		private final int jugadorTurno;
+		
+		public EstadoRemoverSqChess(int turno, int[][] tablero, int jugadorTurno)
 		{
 			this.turno = turno;
 			this.tablero = tablero;
@@ -172,6 +173,8 @@ public class SquareChess extends _Juego {
 					cuads++;
 				removerIniciales[i] = cuads;
 			}
+			
+			this.jugadorTurno = jugadorTurno;
 		}
 		
 		private int contarCuadrados(int jugador)
@@ -187,6 +190,19 @@ public class SquareChess extends _Juego {
 			return cuadrados;
 		}
 		
+		private int contarFichas(int ficha)
+		{
+			int fichas = 0;
+			for (int y = 0; y < alto; y++) {
+				for (int x = 0; x < ancho; x++) {
+					if (tablero[x][y] == ficha)
+						fichas++;
+				}		
+			}
+			
+			return fichas;
+		}
+		
 		
 		@Override
 		public Juego juego() {
@@ -200,9 +216,47 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
+			int idxJugador = 0;
+			while (idxJugador < jugadores.length && !jugadores[idxJugador].equals(jugador))
+				idxJugador++;
+			
+			int idxOponente = (idxJugador + 1) % 2;
+			int fichasOponente = contarFichas(idxOponente);
+			Movimiento[] movimientos = new Movimiento[fichasOponente];
+			int idxMov = 0;
+			for (int y = 0; y < alto; y++) {
+				for (int x = 0; x < ancho; x++) {
+					if (tablero[x][y] == idxOponente)
+					{
+						movimientos[idxMov] = new MovimientoRemoverSqChess(new Posicion(x, y));
+					}
+				}
+					
+			}
+			
 			return null;
 		}
+		
+		public class MovimientoRemoverSqChess implements Movimiento {
+			
+			private final Posicion posicion;
+			
+			public MovimientoRemoverSqChess(Posicion posFicha)
+			{
+				this.posicion = posFicha;
+			}
+			
+			@Override
+			public Estado estado() {
+				return EstadoRemoverSqChess.this;
+			}
 
+			@Override
+			public Jugador jugador() {
+				return jugadores[jugadorTurno];
+			}
+		}
+		
 		@Override
 		public Double resultado(Jugador jugador) {
 			// TODO Auto-generated method stub
@@ -211,7 +265,34 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Estado siguiente(Movimiento movimiento) {
-			// TODO Auto-generated method stub
+			MovimientoRemoverSqChess mov = (MovimientoRemoverSqChess)movimiento;
+			if (mov == null)
+				return this;
+			
+			int idxOponente = (jugadorTurno+1) % jugadores.length;
+			if (tablero[mov.posicion.x][mov.posicion.y] != idxOponente)
+				return this;
+			
+			int[][] tableroSig = tablero.clone();
+			tableroSig[mov.posicion.x][mov.posicion.y] = jugadorTurno;
+			
+			int turnoFinRemoverInit = alto*ancho + removerIniciales[0] + removerIniciales[1];
+			int turnoSig = turno + 1;
+			int jugadorSig = 0;
+			if (turnoSig < turnoFinRemoverInit)
+			{
+				if (turnoSig < alto*ancho + removerIniciales[0])
+					jugadorSig = 0;
+				else
+					jugadorSig = 1;
+				
+				return new EstadoRemoverSqChess(turnoSig, tableroSig, jugadorSig);
+			}
+			else
+			{
+				jugadorSig = idxOponente;
+				// TODO return new EstadoMoverSqChess;
+			}
 			return null;
 		}
 	}
