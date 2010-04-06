@@ -1,5 +1,7 @@
 package juegos.squareChess;
 
+import java.util.ArrayList;
+
 import juegos.base.Estado;
 import juegos.base.Juego;
 import juegos.base.Jugador;
@@ -295,5 +297,124 @@ public class SquareChess extends _Juego {
 			}
 			return null;
 		}
+	}
+	private class EstadoMoverSqChess implements Estado {
+		
+		private final int turno;
+		
+		private final int[][] tablero;
+		
+		private final int idxJugador;
+		
+		public EstadoMoverSqChess(int turno, int[][] tablero, int idxJugador)
+		{
+			this.turno = turno;
+			this.tablero = tablero;
+			this.idxJugador = idxJugador;
+		}
+		
+		@Override
+		public Juego juego() {
+			return SquareChess.this;
+		}
+
+		@Override
+		public Jugador[] jugadores() {
+			return jugadores;
+		}
+		
+		public class MovimientoMoverSqChess implements Movimiento {
+			
+			private final Posicion posFicha;
+			
+			private final Posicion destinoFicha;
+			
+			public MovimientoMoverSqChess(Posicion posFicha, Posicion destinoFicha)
+			{
+				this.posFicha = posFicha;
+				this.destinoFicha = destinoFicha;
+			}
+			
+			@Override
+			public Estado estado() {
+				return EstadoMoverSqChess.this;
+			}
+
+			@Override
+			public Jugador jugador() {
+				return jugadores[idxJugador];
+			}
+			
+		}
+
+		@Override
+		public Movimiento[] movimientos(Jugador jugador) {
+			
+			ArrayList movs = new ArrayList();
+			
+			for (int y = 0; y < alto; y++) {
+				for (int x = 0; x < ancho; x++) {
+					
+				}
+					
+			}
+			return null;
+		}
+		
+		private Movimiento[] movimientosFicha(Posicion pos)
+		{
+			ArrayList<MovimientoMoverSqChess> aMovs = new ArrayList<MovimientoMoverSqChess>();
+			//Derecha
+			Posicion sigPos = pos.mover(1, 0);
+			while (sigPos.x < ancho && tablero[sigPos.x][sigPos.y] == -1)
+			{
+				MovimientoMoverSqChess mov = new MovimientoMoverSqChess(pos, sigPos);
+				aMovs.add(mov);
+				sigPos = sigPos.mover(1, 0);
+			}
+			
+			//Izquierda
+			sigPos = pos.mover(-1, 0);
+			while (sigPos.x > 0 && tablero[sigPos.x][sigPos.y] == -1)
+			{
+				MovimientoMoverSqChess mov = new MovimientoMoverSqChess(pos, sigPos);
+				aMovs.add(mov);
+				sigPos = sigPos.mover(-1, 0);
+			}
+			
+			//Arriba
+			sigPos = pos.mover(0, 1);
+			while (sigPos.y < alto && tablero[sigPos.x][sigPos.y] == -1)
+			{
+				MovimientoMoverSqChess mov = new MovimientoMoverSqChess(pos, sigPos);
+				aMovs.add(mov);
+				sigPos = sigPos.mover(0, 1);
+			}
+			
+			//Abajo
+			sigPos = pos.mover(0, -1);
+			while (sigPos.y > 0 && tablero[sigPos.x][sigPos.y] == -1)
+			{
+				MovimientoMoverSqChess mov = new MovimientoMoverSqChess(pos, sigPos);
+				aMovs.add(mov);
+				sigPos = sigPos.mover(0, -1);
+			}
+			
+			MovimientoMoverSqChess[] movimientos = aMovs.toArray(new MovimientoMoverSqChess[aMovs.size()]);
+			return movimientos;
+		}
+
+		@Override
+		public Double resultado(Jugador jugador) {
+			// Solo termina luego de remover la ultima ficha
+			return null;
+		}
+
+		@Override
+		public Estado siguiente(Movimiento movimiento) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 	}
 }
