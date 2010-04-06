@@ -10,4 +10,19 @@ public class Posicion
 		this.x = x;
 		this.y = y;
 	}
+	
+	public Posicion clone()
+	{
+		return new Posicion(this.x, this.y);
+	}
+	
+	public Posicion mover(int x, int y)
+	{
+		return new Posicion(this.x + x, this.y + y);
+	}
+	
+	public String toString()
+	{
+		return "(" + this.x + "," + this.y + ")";
+	}
 }
