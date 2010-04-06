@@ -8,49 +8,67 @@ import juegos.base._Juego;
 import juegos.tateti.Tateti;
 
 public class SquareChess extends _Juego {
-	public static Juego JUEGO = new SquareChess();
+	public static Juego JUEGO = new SquareChess(7,7);
 	
-	public SquareChess() {
+	private final int ancho;
+	
+	private final int alto;
+	
+	public SquareChess(int alto, int ancho) {
 		super("SquareChess", "Blancas", "Negras");
+		this.alto = alto;
+		this.ancho = ancho;
 	}
 
-	private static char[] tableroVacio = { 
-		'0','0','0','0','0','0','0',
-		'0','0','0','0','0','0','0',
-		'0','0','0','0','0','0','0',
-		'0','0','0','0','0','0','0',
-		'0','0','0','0','0','0','0',
-		'0','0','0','0','0','0','0',
-		'0','0','0','0','0','0','0',
-	};
+	private static int[][] tableroVacio(int alto, int ancho)
+	{
+		int[][] tablero = new int[ancho][alto];
+		for (int x = 0; x < ancho; x++)
+		{
+			for (int y = 0; y < alto; y++)
+			{
+				tablero[x][y] = -1;
+			}
+		}
+		
+		return tablero;
+	}
 
 	@Override
 	public Estado inicio(Jugador... jugadores) {
-		return new EstadoInitSqChess(0, tableroVacio);
+		return new EstadoSqChess(0, 0, tableroVacio(alto, ancho), false);
 	}
 	
-	private final String[] CASILLAS = {
-		"A1","B1","C1","D1","E1","F1","G1",
-		"A2","B2","C2","D2","E2","F2","G2",
-		"A3","B3","C3","D3","E3","F3","G3",
-		"A4","B4","C4","D4","E4","F4","G4",
-		"A5","B5","C5","D5","E5","F5","G5",
-		"A6","B6","C6","D6","E6","F6","G6",
-		"A7","B7","C7","D7","E7","F7","G7",
-		"A8","B8","C8","D8","E8","F8","G8"
-	};
+	public class Posicion
+	{
+		public int x;
+		public int y;
+		
+		public Posicion(int x, int y)
+		{
+			this.x = x;
+			this.y = y;
+		}
+	}
 	
-	// Representa los estados que constituyen la etapa inicial del juego
-	// donde se debe rellenar el tablero
-	private class EstadoInitSqChess implements Estado {
+	private class EstadoSqChess implements Estado {
 		private final int turno;
 		
-		private final char[] tablero;
+		private final int[][] tablero;
 		
-		public EstadoInitSqChess(int turno, char[] tablero)
+		private final boolean removerPieza;
+		
+		private final int[] cuadradosIniciales;
+		
+		private final int jugador;
+		
+		public EstadoSqChess(int turno, int jugador, int[][] tablero, boolean removerPieza)
 		{
 			this.turno = turno;
 			this.tablero = tablero;
+			this.removerPieza = removerPieza;
+			this.jugador = jugador;
+			this.cuadradosIniciales = new int[jugadores.length];
 		}
 		
 		@Override
@@ -71,15 +89,36 @@ public class SquareChess extends _Juego {
 		}
 		
 		public class MovimientoSqChess implements Movimiento {
-
+			
+			//Casillas de accion
+			public final Posicion pos1; //Origen o posicion
+			public final Posicion pos2; //Destino
+			
+			
+			public MovimientoSqChess(Posicion pos)
+			{
+				this.pos1 = pos;
+				this.pos2 = new Posicion(-1, -1);
+			}
+			
+			public MovimientoSqChess(Posicion origen, Posicion destino)
+			{
+				this.pos1 = origen;
+				this.pos2 = destino;
+			}
+			
 			@Override
 			public Estado estado() {
-				return EstadoInitSqChess.this;
+				return EstadoSqChess.this;
 			}
 
 			@Override
 			public Jugador jugador() {
-				return jugadores[turno % 2];
+				return jugadores[turno % jugadores.length];
+			}
+			
+			public int indiceJugador() {
+				return turno % jugadores.length;
 			}
 			
 		}
@@ -91,122 +130,76 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Estado siguiente(Movimiento movimiento) {
-			// TODO Auto-generated method stub
+			
+			MovimientoSqChess movSC = (MovimientoSqChess)movimiento;
+			//Se estan colocando las fichas en el tablero
+			if (this.turno < tablero.length)
+			{
+				int[][] tableroSig = this.tablero.clone();
+				tableroSig[movSC.pos1.x][movSC.pos1.y] = movSC.indiceJugador();
+				int sigJugador = (jugador + 1) % jugadores.length;
+				return new EstadoSqChess(this.turno + 1, sigJugador, tableroSig, turnoRemover());
+			}
+			//Movimientos de solo remover
+			else
+			{
+				
+			}
+			
 			return null;
 		}
-	
-	}
-	
-	// Representa los estados que constituyen la etapa inicial del juego
-	// donde se debe remover fichas
-	private class EstadoRemoveSqChess implements Estado {
-		private final int turno;
 		
-		private final char[] tablero;
-		
-		public EstadoRemoveSqChess(int turno, char[] tablero)
+		public int cuadrados(Jugador jugador)
 		{
-			this.turno = turno;
-			this.tablero = tablero;
+			return 0;
 		}
 		
-		@Override
-		public Juego juego() {
-			// TODO Auto-generated method stub
-			return SquareChess.this;
-		}
-
-		@Override
-		public Jugador[] jugadores() {
-			return jugadores;
-		}
-
-		@Override
-		public Movimiento[] movimientos(Jugador jugador) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		public class MovimientoSqChess implements Movimiento {
-
-			@Override
-			public Estado estado() {
-				return EstadoRemoveSqChess.this;
-			}
-
-			@Override
-			public Jugador jugador() {
-				return jugadores[turno % 2];
-			}
-			
-		}
-		@Override
-		public Double resultado(Jugador jugador) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Estado siguiente(Movimiento movimiento) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	
-	}
-	
-	// Representa los estados que constituyen la etapa inicial del juego
-	// donde se debe mover fichas
-	private class EstadoMoveSqChess implements Estado {
-		private final int turno;
-		
-		private final char[] tablero;
-		
-		public EstadoMoveSqChess(int turno, char[] tablero)
+		public boolean turnoRemover()
 		{
-			this.turno = turno;
-			this.tablero = tablero;
-		}
-		
-		@Override
-		public Juego juego() {
-			// TODO Auto-generated method stub
-			return SquareChess.this;
-		}
-
-		@Override
-		public Jugador[] jugadores() {
-			return jugadores;
-		}
-
-		@Override
-		public Movimiento[] movimientos(Jugador jugador) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		public class MovimientoSqChess implements Movimiento {
-
-			@Override
-			public Estado estado() {
-				return EstadoMoveSqChess.this;
-			}
-
-			@Override
-			public Jugador jugador() {
-				return jugadores[turno % 2];
+			if (turno < tablero.length)
+				return false;
+			
+			int turnosRemover = tablero.length;
+			for (int i = 0; i < cuadradosIniciales.length; i++)
+			{
+				if (cuadradosIniciales[i] == 0)
+					turnosRemover += 1;
+				else
+					turnosRemover += cuadradosIniciales[i];
 			}
 			
+			if (turno < turnosRemover)
+			{
+				return true;
+			}
+			
+			return false;
 		}
-		@Override
-		public Double resultado(Jugador jugador) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Estado siguiente(Movimiento movimiento) {
-			// TODO Auto-generated method stub
-			return null;
+		
+		public boolean formaCuadrado(Posicion pos, int jugador)
+		{
+			Posicion[] rodeantes = new Posicion[8];
+			rodeantes[0] = new Posicion(pos.x - 1, pos.y);
+			rodeantes[1] = new Posicion(pos.x - 1, pos.y - 1);
+			rodeantes[2] = new Posicion(pos.x, pos.y - 1);
+			rodeantes[3] = new Posicion(pos.x + 1, pos.y - 1);
+			rodeantes[4] = new Posicion(pos.x + 1, pos.y);
+			rodeantes[5] = new Posicion(pos.x + 1, pos.y + 1);
+			rodeantes[6] = new Posicion(pos.x, pos.y + 1);
+			rodeantes[7] = new Posicion(pos.x - 1, pos.y + 1);
+			
+			for (int i = 0; i < 8; i+= 2)
+			{
+				Posicion pos0 = rodeantes[i];
+				Posicion pos1 = rodeantes[i+1];
+				Posicion pos2 = rodeantes[(i+2) % 8];
+				if (tablero[pos0.x][pos0.y] == jugador && tablero[pos1.x][pos1.y] == jugador && tablero[pos2.x][pos2.y] == jugador)
+				{
+					return true;
+				}
+			}
+			
+			return false;
 		}
 	
 	}
