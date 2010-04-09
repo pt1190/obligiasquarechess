@@ -170,8 +170,7 @@ public class Tateti extends _Juego {
 	
 	public static void main(String[] args) throws Exception {
 		System.out.println(Partida.completa(Tateti.JUEGO, 
-			new AgenteConsola(),
-			//new AgenteAleatorio(),
-			new MiniMax(9)).toString());
+				new AgenteConsola(), new AgenteAleatorio()
+			).toString());
 	}
 }
