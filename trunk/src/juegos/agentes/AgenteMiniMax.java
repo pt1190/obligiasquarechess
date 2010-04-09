@@ -5,15 +5,22 @@ import juegos.base.Estado;
 import juegos.base.Jugador;
 import juegos.base.Movimiento;
 
-public class MiniMax implements Agente{
+public class AgenteMiniMax implements Agente {
+	
+	public int profundidad;
 
-	public MiniMax(int i) {
-		// TODO Auto-generated constructor stub
+	public AgenteMiniMax(int i) {
+		this.profundidad = i;
 	}
 
 	@Override
 	public void comienzo(Jugador jugador, Estado estado) {
-		// TODO Auto-generated method stub
+		alfaBeta(jugador, estado, Integer.MIN_VALUE, Integer.MAX_VALUE);		
+	}
+
+	private void alfaBeta(Jugador jugador, Estado estado, int alfa,	int beta) {
+		//if(estado.resultado(jugador) == null)
+			//return estado.resultado(jugador);
 		
 	}
 
