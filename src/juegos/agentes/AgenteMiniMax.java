@@ -7,27 +7,57 @@ import juegos.base.Movimiento;
 
 public class AgenteMiniMax implements Agente {
 	
-	public int profundidad;
+	private Jugador jugador;
 
-	public AgenteMiniMax(int i) {
-		this.profundidad = i;
+	public AgenteMiniMax() {
 	}
 
 	@Override
 	public void comienzo(Jugador jugador, Estado estado) {
-		alfaBeta(jugador, estado, Integer.MIN_VALUE, Integer.MAX_VALUE);		
-	}
-
-	private void alfaBeta(Jugador jugador, Estado estado, int alfa,	int beta) {
-		//if(estado.resultado(jugador) == null)
-			//return estado.resultado(jugador);
-		
+		this.jugador = jugador;		
 	}
 
 	@Override
 	public Movimiento decision(Estado estado) {
-		// TODO Auto-generated method stub
+		@SuppressWarnings("unused")
+		Double value = alfaBeta(estado, Double.MIN_VALUE, Double.MAX_VALUE);
 		return null;
+	}
+
+	private Double alfaBeta(Estado estado, Double alfa, Double beta) {
+		Double r = estado.resultado(jugador);
+		if(r != null)
+			return r;
+		else
+		{
+			Movimiento[] movs = estado.movimientos(jugador);
+			for(Movimiento m : movs)
+			{
+				if(jugador.equals(m.jugador()))
+				{
+					alfa = maximo(alfa,alfaBeta(m.estado(), alfa, beta));
+					if(alfa >= beta)
+						return beta;
+					return alfa;
+				}
+				else
+				{
+					beta = minimo(beta,alfaBeta(m.estado(), alfa, beta));
+					if(alfa >= beta)
+						return alfa;
+					return beta;
+				}
+			}
+			return null;
+		}
+	}
+
+	private Double minimo(Double alfa, Double beta) {
+		return alfa <= beta ? alfa : beta;
+	}
+
+	private Double maximo(Double alfa, Double beta) {
+		return alfa >= beta ? alfa : beta;
 	}
 
 	@Override
@@ -38,8 +68,7 @@ public class AgenteMiniMax implements Agente {
 
 	@Override
 	public Jugador jugador() {
-		// TODO Auto-generated method stub
-		return null;
+		return jugador;
 	}
 
 	@Override

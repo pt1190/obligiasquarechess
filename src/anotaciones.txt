@@ -8,3 +8,6 @@
 
 - Ficha libre: Ficha que no forma un cuadrado
 - Herusticas posibles: evitar que se forme una V del contrario antes que formar un cuadrado propio
+
+Funcionamiento del agente MiniMax:
+El agente debe funcionar de tal manera que 
