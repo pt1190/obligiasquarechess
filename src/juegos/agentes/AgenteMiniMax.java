@@ -19,44 +19,59 @@ public class AgenteMiniMax implements Agente {
 
 	@Override
 	public Movimiento decision(Estado estado) {
-		AlfaBeta alfaBeta = alfaBeta(jugador, estado, new AlfaBeta(-15.0), new AlfaBeta(15.0));
+		AlfaBeta alfaBeta = max(estado, jugador, new AlfaBeta(-15.0), new AlfaBeta(15.0));
+		System.out.println("AB = " + alfaBeta.valor);
 		return alfaBeta.getMov();
 	}
-
-	private AlfaBeta alfaBeta(Jugador jug, Estado estado, AlfaBeta alfa, AlfaBeta beta) {
-		Double r = estado.resultado(jug);
-		if(r != null)
-			return new AlfaBeta(r, null);
+	
+	private AlfaBeta max(Estado estado, Jugador jugador, AlfaBeta alfa, AlfaBeta beta)
+	{
+		Double res = estado.resultado(jugador);
+		if (res != null)
+		{
+			return new AlfaBeta(res);
+		}
 		else
 		{
-			Movimiento[] movs = estado.movimientos(jug);
-			for(Movimiento m : movs)
+			Jugador oponente = getOther(jugador, estado);
+			Movimiento[] movs = estado.movimientos(jugador);
+			AlfaBeta ab;
+			for (Movimiento mov : movs)
 			{
-				Jugador nextJug = getOther(m.jugador(), estado);
-				if(jugador.equals(jug))
-				{
-					alfa = maximo(alfa,alfaBeta(nextJug, estado.siguiente(m), alfa, beta));
-					if(alfa.getValor() >= beta.getValor())
-					{
-						beta.setMov(m);
-						return beta;
-					}
-					alfa.setMov(m);
+				ab = min(estado.siguiente(mov), oponente, alfa, beta);
+				ab.mov = mov;
+				if (ab.valor > alfa.valor)
+					alfa = ab;
+				if (alfa.valor >= beta.valor)
 					return alfa;
-				}
-				else
-				{
-					beta = minimo(beta,alfaBeta(nextJug, estado.siguiente(m), alfa, beta));
-					if(alfa.getValor() >= beta.getValor())
-					{
-						alfa.setMov(m);
-						return alfa;
-					}
-					beta.setMov(m);
-					return beta;
-				}
 			}
-			return null;
+			return alfa;
+		}
+	}
+	
+	private AlfaBeta min(Estado estado, Jugador jugador, AlfaBeta alfa, AlfaBeta beta)
+	{
+		Double res = estado.resultado(jugador);
+		if (res != null)
+		{
+			return new AlfaBeta(res);
+		}
+		else
+		{
+			Jugador oponente = getOther(jugador, estado);
+			Movimiento[] movs = estado.movimientos(jugador);
+			AlfaBeta ab;
+			for (Movimiento mov : movs)
+			{
+				ab = max(estado.siguiente(mov), oponente, alfa, beta);
+				ab.mov = mov;
+				if (ab.valor < beta.valor)
+					beta = ab;
+				if (alfa.valor >= beta.valor)
+					return beta;
+			}
+			
+			return beta;
 		}
 	}
 	
