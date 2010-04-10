@@ -19,45 +19,58 @@ public class AgenteMiniMax implements Agente {
 
 	@Override
 	public Movimiento decision(Estado estado) {
-		@SuppressWarnings("unused")
-		Double value = alfaBeta(estado, Double.MIN_VALUE, Double.MAX_VALUE);
-		return null;
+		AlfaBeta alfaBeta = alfaBeta(jugador, estado, new AlfaBeta(-15.0), new AlfaBeta(15.0));
+		return alfaBeta.getMov();
 	}
 
-	private Double alfaBeta(Estado estado, Double alfa, Double beta) {
-		Double r = estado.resultado(jugador);
+	private AlfaBeta alfaBeta(Jugador jug, Estado estado, AlfaBeta alfa, AlfaBeta beta) {
+		Double r = estado.resultado(jug);
 		if(r != null)
-			return r;
+			return new AlfaBeta(r, null);
 		else
 		{
-			Movimiento[] movs = estado.movimientos(jugador);
+			Movimiento[] movs = estado.movimientos(jug);
 			for(Movimiento m : movs)
 			{
-				if(jugador.equals(m.jugador()))
+				Jugador nextJug = getOther(m.jugador(), estado);
+				if(jugador.equals(jug))
 				{
-					alfa = maximo(alfa,alfaBeta(m.estado(), alfa, beta));
-					if(alfa >= beta)
+					alfa = maximo(alfa,alfaBeta(nextJug, estado.siguiente(m), alfa, beta));
+					if(alfa.getValor() >= beta.getValor())
+					{
+						beta.setMov(m);
 						return beta;
+					}
+					alfa.setMov(m);
 					return alfa;
 				}
 				else
 				{
-					beta = minimo(beta,alfaBeta(m.estado(), alfa, beta));
-					if(alfa >= beta)
+					beta = minimo(beta,alfaBeta(nextJug, estado.siguiente(m), alfa, beta));
+					if(alfa.getValor() >= beta.getValor())
+					{
+						alfa.setMov(m);
 						return alfa;
+					}
+					beta.setMov(m);
 					return beta;
 				}
 			}
 			return null;
 		}
 	}
-
-	private Double minimo(Double alfa, Double beta) {
-		return alfa <= beta ? alfa : beta;
+	
+	private Jugador getOther(Jugador j, Estado e){
+		Jugador[] jugs = e.jugadores();
+		return jugs[0].equals(j) ? jugs[1] : jugs[0];
 	}
 
-	private Double maximo(Double alfa, Double beta) {
-		return alfa >= beta ? alfa : beta;
+	private AlfaBeta minimo(AlfaBeta alfa, AlfaBeta beta) {
+		return alfa.getValor() <= beta.getValor() ? alfa : beta;
+	}
+
+	private AlfaBeta maximo(AlfaBeta alfa, AlfaBeta beta) {
+		return alfa.getValor() >= beta.getValor() ? alfa : beta;
 	}
 
 	@Override
@@ -75,6 +88,39 @@ public class AgenteMiniMax implements Agente {
 	public void movimiento(Movimiento movimiento, Estado estado) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public class AlfaBeta {
+		
+		private Movimiento mov;
+		private Double valor; // Valor correspondiente al estado final contenido en el movimiento
+		
+		public Movimiento getMov() {
+			return mov;
+		}
+
+		public void setMov(Movimiento mov) {
+			this.mov = mov;
+		}
+
+		public Double getValor() {
+			return valor;
+		}
+
+		public void setValor(Double valor) {
+			this.valor = valor;
+		}
+		
+		public AlfaBeta(Double v, Movimiento m){
+			valor = v;
+			mov = m;
+		}
+		
+		public AlfaBeta(Double v){
+			valor = v;
+			mov = null;
+		}
+
 	}
 
 }
