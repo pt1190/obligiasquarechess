@@ -26,32 +26,54 @@ public class Posicion
 		return "(" + this.x + "," + this.y + ")";
 	}
 	
+	@Override
+	public boolean equals(Object object)
+	{
+		if (object.getClass().equals(Posicion.class))
+		{
+			Posicion pos = (Posicion)object;
+			return (pos.x == this.x) && (pos.y == this.y);
+		}
+		
+		return false;
+	}
+	
 	public static Posicion[] linea(Posicion pos1, Posicion pos2)
 	{
-		double deltaX = pos2.x - pos1.x;
-		double deltaY = pos2.y - pos1.y;
-		if (Math.abs(deltaX) >= Math.abs(deltaY))
+		double deltaX = Math.abs(pos2.x - pos1.x);
+		double deltaY = Math.abs(pos2.y - pos1.y);
+        if (deltaX >= deltaY)
 		{
+            Posicion min = pos2.x < pos1.x ? pos2 : pos1;
+            boolean invertido = min.equals(pos2);
+
 			Posicion[] linea = new Posicion[(int)deltaX + 1];
-			int dir = (int)(deltaX / Math.abs(deltaX));
-			for (int u = 0; u <= deltaX; u += dir)
+			for (int u = 0; u <= deltaX; u ++)
 			{
-				int x = pos1.x + u;
-				int y = (int)Math.round(pos1.y + (u / deltaX) * deltaY);
-				linea[u] = new Posicion(x, y);
+				int x = min.x + u;
+				int y = (int)Math.round(min.y + (u / deltaX) * deltaY);
+                if (!invertido)
+                    linea[u] = new Posicion(x, y);
+                else
+                    linea[linea.length - 1 - u] = new Posicion(x, y);
 			}
 			
 			return linea;
 		}
 		else
 		{
+            Posicion min = pos2.y < pos1.y ? pos2 : pos1;
+            boolean invertido = min.equals(pos2);
+
 			Posicion[] linea = new Posicion[(int)deltaY + 1];
-			int dir = (int)(deltaY / Math.abs(deltaY));
-			for (int v = 0; v <= deltaY; v += dir)
+			for (int v = 0; v <= deltaY; v++)
 			{
-				int y = pos1.y + v;
-				int x = (int)Math.round(pos1.x + (v / deltaY) * deltaX);
-				linea[v] = new Posicion(x, y);
+				int y = min.y + v;
+				int x = (int)Math.round(min.x + (v / deltaY) * deltaX);
+                if (!invertido)
+                    linea[v] = new Posicion(x, y);
+                else
+                    linea[linea.length - 1 - v] = new Posicion(x, y);
 			}
 			
 			return linea;
