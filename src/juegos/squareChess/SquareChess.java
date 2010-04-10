@@ -88,7 +88,7 @@ public class SquareChess extends _Juego {
 			}
 			else
 			{
-				return 0.0;
+				return null;
 			}
 		}
 
