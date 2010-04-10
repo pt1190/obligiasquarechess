@@ -76,9 +76,15 @@ public class SquareChess extends _Juego {
 			while (jugadores[idxOponente].equals(jugador))
 				idxOponente++;
 			
+			int idxJugador = (idxOponente + 1) % 2;
+			
 			if (contarFichas(idxOponente) < 4)
 			{
 				return 1.0;
+			}
+			else if (contarFichas(idxJugador) < 4)
+			{
+				return -1.0;
 			}
 			else
 			{
