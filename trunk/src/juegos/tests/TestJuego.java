@@ -5,6 +5,7 @@ import java.util.*;
 import juegos.Partida;
 import juegos.agentes.AgenteTraza;
 import juegos.base.*;
+import juegos.squareChess.SquareChess;
 import juegos.tateti.Tateti;
 import junit.framework.TestCase;
 
@@ -49,6 +50,13 @@ public class TestJuego extends TestCase {
 		Partida partida = testJuego(Tateti.JUEGO, 
 			"Xs\tB2", "Os\tA2", "Xs\tA1", "Os\tC3",
 			"Xs\tC1", "Os\tB1", "Xs\tA3");
+		double[] resultados = partida.resultados();
+		assertTrue("Xs debería haber ganado.", resultados[0] > 0);
+		assertTrue("Os debería haber perdido.", resultados[1] < 0);
+	}
+	
+	public void testSquareChess() {
+		Partida partida = testJuego(SquareChess.JUEGO);
 		double[] resultados = partida.resultados();
 		assertTrue("Xs debería haber ganado.", resultados[0] > 0);
 		assertTrue("Os debería haber perdido.", resultados[1] < 0);
