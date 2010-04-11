@@ -19,7 +19,7 @@ public class AgenteMiniMax implements Agente {
 
 	@Override
 	public Movimiento decision(Estado estado) {
-		AlfaBeta alfaBeta = max(estado, jugador, new AlfaBeta(-15.0), new AlfaBeta(15.0));
+		AlfaBeta alfaBeta = max(estado, jugador, new AlfaBeta(-900.0), new AlfaBeta(900.0));
 		System.out.println("AB = " + alfaBeta.valor);
 		return alfaBeta.getMov();
 	}
@@ -35,17 +35,18 @@ public class AgenteMiniMax implements Agente {
 		{
 			Jugador oponente = getOther(jugador, estado);
 			Movimiento[] movs = estado.movimientos(jugador);
-			AlfaBeta ab;
+			AlfaBeta aux;
 			for (Movimiento mov : movs)
 			{
-				ab = min(estado.siguiente(mov), oponente, alfa, beta);
-				ab.mov = mov;
-				if (ab.valor > alfa.valor)
-					alfa = ab;
-				if (alfa.valor >= beta.valor)
-					return alfa;
+				aux = min(estado.siguiente(mov), oponente, alfa, beta);
+				if(aux.valor >= alfa.valor){
+					alfa = aux;
+					alfa.mov = mov;
+				}
+				if (beta.valor <= alfa.valor)
+					return beta;
 			}
-			return alfa;
+			return beta;
 		}
 	}
 	
@@ -60,17 +61,16 @@ public class AgenteMiniMax implements Agente {
 		{
 			Jugador oponente = getOther(jugador, estado);
 			Movimiento[] movs = estado.movimientos(jugador);
-			AlfaBeta ab;
 			for (Movimiento mov : movs)
 			{
-				ab = max(estado.siguiente(mov), oponente, alfa, beta);
-				ab.mov = mov;
-				if (ab.valor < beta.valor)
-					beta = ab;
-				if (alfa.valor >= beta.valor)
-					return beta;
-			}
-			
+				AlfaBeta aux = max(estado.siguiente(mov), oponente, alfa, beta);
+				if(aux.valor < beta.valor){
+					beta = aux;
+					beta.mov = mov;					
+				}
+				if (beta.valor <= alfa.valor)
+					return alfa;
+			}			
 			return beta;
 		}
 	}
@@ -78,14 +78,6 @@ public class AgenteMiniMax implements Agente {
 	private Jugador getOther(Jugador j, Estado e){
 		Jugador[] jugs = e.jugadores();
 		return jugs[0].equals(j) ? jugs[1] : jugs[0];
-	}
-
-	private AlfaBeta minimo(AlfaBeta alfa, AlfaBeta beta) {
-		return alfa.getValor() <= beta.getValor() ? alfa : beta;
-	}
-
-	private AlfaBeta maximo(AlfaBeta alfa, AlfaBeta beta) {
-		return alfa.getValor() >= beta.getValor() ? alfa : beta;
 	}
 
 	@Override
