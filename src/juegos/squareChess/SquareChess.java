@@ -2,6 +2,9 @@ package juegos.squareChess;
 
 import java.util.ArrayList;
 
+import juegos.Partida;
+import juegos.agentes.AgenteConsola;
+import juegos.agentes.AgenteMiniMaxSqChess;
 import juegos.base.Estado;
 import juegos.base.Juego;
 import juegos.base.Jugador;
@@ -40,7 +43,7 @@ public class SquareChess extends _Juego {
 		return new EstadoInitSqChess(0, tableroVacio(alto, ancho));
 	}
 	
-	private class EstadoSqChess implements Estado {
+	public class EstadoSqChess implements Estado {
 
 		protected final int turno;
 		
@@ -64,13 +67,13 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
-			return new Movimiento[0];
+			return null;
 		}
 
 		@Override
 		public Double resultado(Jugador jugador) {
 			if (turno < alto*ancho)
-				return 0.0;
+				return null;
 			
 			int idxOponente = 0;
 			while (jugadores[idxOponente].equals(jugador))
@@ -159,11 +162,15 @@ public class SquareChess extends _Juego {
 			return false;
 		}
 		
+		@Override
 		public String toString() {
 			String salida = "";
 			for (int y = 0; y < alto; y++) {
 				for (int x = 0; x < ancho; x++) {
-					salida += tablero[x][y] + " ";
+					if (tablero[x][y] == -1)
+						salida += "v" + " ";
+					else
+						salida += jugadores[tablero[x][y]].toString().substring(0,1) + " ";
 				}
 				if (y < alto -1)
 					salida += "\n";
@@ -171,6 +178,10 @@ public class SquareChess extends _Juego {
 			return salida;
 		}
 		
+		public Jugador getJugador()
+		{
+			return null;
+		}
 	}
 	
 	private class EstadoInitSqChess extends EstadoSqChess {
@@ -181,6 +192,8 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
+			if (jugador != getJugador())
+				return null;
 			Movimiento[] movs = new Movimiento[celdasVacias()];
 			int i = 0;
 			for (int y = 0; y < alto; y++) {
@@ -193,7 +206,7 @@ public class SquareChess extends _Juego {
 				}
 					
 			}
-			return null;
+			return movs;
 		}
 		
 		public class MovimientoInitSqChess implements Movimiento {
@@ -222,7 +235,7 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return "Poner ficha en " + posicion.toString();
+				return "poner " + (int)posicion.x + "," + (int)posicion.y;
 			}
 			
 		}
@@ -239,6 +252,12 @@ public class SquareChess extends _Juego {
 				return new EstadoInitSqChess(this.turno + 1, tableroSig);
 			else
 				return new EstadoRemoverSqChess(this.turno + 1, tableroSig, 0);
+		}
+		
+		@Override
+		public Jugador getJugador()
+		{
+			return jugadores[turno % 2];
 		}
 	}
 	
@@ -265,6 +284,8 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
+			if (jugador != getJugador())
+				return null;
 			int idxJugador = 0;
 			while (idxJugador < jugadores.length && !jugadores[idxJugador].equals(jugador))
 				idxJugador++;
@@ -308,10 +329,16 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return "Remover ficha de " + posicion.toString();
+				return "remover " + (int)posicion.x + "," + (int)posicion.y;
 			}
 		}
-
+		
+		@Override
+		public Jugador getJugador()
+		{
+			return jugadores[jugadorTurno];
+		}
+		
 		@Override
 		public Estado siguiente(Movimiento movimiento) {
 			MovimientoRemoverSqChess mov = (MovimientoRemoverSqChess)movimiento;
@@ -341,7 +368,7 @@ public class SquareChess extends _Juego {
 			{
 				jugadorSig = idxOponente;
 				EstadoMoverSqChess estadoSig = new EstadoMoverSqChess(turno + 1, tableroSig, jugadorSig);
-				if (estadoSig.movimientos(jugadores[idxOponente]).length == 0)
+				if (estadoSig.movimientos(jugadores[idxOponente]) == null)
 					return new EstadoMoverSqChess(turno + 1, tableroSig, jugadorTurno);
 				else
 					return estadoSig;
@@ -384,13 +411,14 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return jugador().toString() + ": Mover ficha de " + posFicha.toString() + " a " + destinoFicha.toString();
+				return "mover" + (int)posFicha.x + "," + (int)posFicha.y + " a " + (int)destinoFicha.x + "," + (int)destinoFicha.y;
 			}
-			
 		}
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
+			if (jugador != getJugador())
+				return null;
 			
 			ArrayList<MovimientoMoverSqChess> movs = new ArrayList<MovimientoMoverSqChess>();
 			int idxJugador = 0;
@@ -473,7 +501,7 @@ public class SquareChess extends _Juego {
 			{
 				
 				EstadoRemoverSqChess estadoSig = new EstadoRemoverSqChess(turno + 1, tableroSig, idxJugador);
-				if (estadoSig.movimientos(jugadores[idxJugador]).length == 0)
+				if (estadoSig.movimientos(jugadores[idxJugador]) == null)
 				{
 					return new EstadoMoverSqChess(turno + 1, tableroSig, (idxJugador+1) % 2);
 				}
@@ -483,7 +511,7 @@ public class SquareChess extends _Juego {
 			{
 				int jugadorSig = (idxJugador+1) % 2;
 				EstadoSqChess estadoSig = new EstadoMoverSqChess(turno + 1, tableroSig, jugadorSig);
-				if (estadoSig.movimientos(jugadores[jugadorSig]).length == 0)
+				if (estadoSig.movimientos(jugadores[jugadorSig]) == null)
 				{
 					return new EstadoMoverSqChess(turno + 1, tableroSig, idxJugador);
 				}
@@ -491,5 +519,19 @@ public class SquareChess extends _Juego {
 					return estadoSig;
 			}
 		}
+		
+		@Override
+		public Jugador getJugador()
+		{
+			return jugadores[idxJugador];
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		System.out.println(Partida.completa(SquareChess.JUEGO, 
+				new AgenteConsola(), 
+				new AgenteMiniMaxSqChess()
+				//new AgenteAleatorio()
+			).toString());
 	}
 }

@@ -24,52 +24,52 @@ public class AgenteMiniMax implements Agente {
 		return alfaBeta.getMov();
 	}
 	
-	private AlfaBeta max(Estado estado, Jugador jugador, AlfaBeta alfa, AlfaBeta beta)
+	private AlfaBeta max(Estado estado, Jugador jugadorActual, AlfaBeta alfa, AlfaBeta beta)
 	{
 		Double res = estado.resultado(jugador);
 		if (res != null)
 		{
-			return new AlfaBeta(res);
+			return new AlfaBeta(res, null, alfa.profundidad);
 		}
 		else
 		{
-			Jugador oponente = getOther(jugador, estado);
-			Movimiento[] movs = estado.movimientos(jugador);
+			Jugador oponente = getOther(jugadorActual, estado);
+			Movimiento[] movs = estado.movimientos(jugadorActual);
 			AlfaBeta aux;
 			for (Movimiento mov : movs)
 			{
-				aux = min(estado.siguiente(mov), oponente, alfa, beta);
-				if(aux.valor >= alfa.valor){
+				aux = min(estado.siguiente(mov), oponente, alfa.sig(), beta.sig());
+				aux.mov = mov;
+				if(aux.valor > alfa.valor || (aux.valor == alfa.valor && aux.profundidad < alfa.profundidad)){
 					alfa = aux;
-					alfa.mov = mov;
 				}
 				if (beta.valor <= alfa.valor)
-					return beta;
+					return alfa;
 			}
-			return beta;
+			return alfa;
 		}
 	}
 	
-	private AlfaBeta min(Estado estado, Jugador jugador, AlfaBeta alfa, AlfaBeta beta)
+	private AlfaBeta min(Estado estado, Jugador jugadorActual, AlfaBeta alfa, AlfaBeta beta)
 	{
 		Double res = estado.resultado(jugador);
 		if (res != null)
 		{
-			return new AlfaBeta(res);
+			return new AlfaBeta(res, null, beta.profundidad);
 		}
 		else
 		{
-			Jugador oponente = getOther(jugador, estado);
-			Movimiento[] movs = estado.movimientos(jugador);
+			Jugador oponente = getOther(jugadorActual, estado);
+			Movimiento[] movs = estado.movimientos(jugadorActual);
 			for (Movimiento mov : movs)
 			{
-				AlfaBeta aux = max(estado.siguiente(mov), oponente, alfa, beta);
-				if(aux.valor < beta.valor){
+				AlfaBeta aux = max(estado.siguiente(mov), oponente, alfa.sig(), beta.sig());
+				aux.mov = mov;
+				if(aux.valor < beta.valor || (aux.valor == beta.valor && aux.profundidad < beta.profundidad)){
 					beta = aux;
-					beta.mov = mov;					
 				}
 				if (beta.valor <= alfa.valor)
-					return alfa;
+					return beta;
 			}			
 			return beta;
 		}
@@ -101,6 +101,7 @@ public class AgenteMiniMax implements Agente {
 		
 		private Movimiento mov;
 		private Double valor; // Valor correspondiente al estado final contenido en el movimiento
+		private int profundidad;
 		
 		public Movimiento getMov() {
 			return mov;
@@ -118,14 +119,21 @@ public class AgenteMiniMax implements Agente {
 			this.valor = valor;
 		}
 		
-		public AlfaBeta(Double v, Movimiento m){
+		public AlfaBeta(Double v, Movimiento m, int prof){
 			valor = v;
 			mov = m;
+			profundidad = prof;
 		}
 		
 		public AlfaBeta(Double v){
 			valor = v;
 			mov = null;
+			profundidad = 0;
+		}
+		
+		public AlfaBeta sig()
+		{
+			return new AlfaBeta(this.valor, this.mov, this.profundidad++);
 		}
 
 	}
