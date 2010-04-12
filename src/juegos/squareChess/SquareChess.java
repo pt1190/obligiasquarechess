@@ -40,7 +40,7 @@ public class SquareChess extends _Juego {
 
 	@Override
 	public Estado inicio(Jugador... jugadores) {
-		return new EstadoInitSqChess(0, tableroVacio(alto, ancho));
+		return new EstadoInitSqChess(0, tableroVacio(alto, ancho), 0);
 	}
 	
 	public class EstadoSqChess implements Estado {
@@ -49,10 +49,13 @@ public class SquareChess extends _Juego {
 		
 		protected final int[][] tablero;
 		
-		public EstadoSqChess(int turno, int[][] tablero)
+		protected final int movidasSinComer;
+		
+		public EstadoSqChess(int turno, int[][] tablero, int movidasSinComer)
 		{
 			this.turno = turno;
 			this.tablero = tablero;
+			this.movidasSinComer = movidasSinComer;
 		}
 		
 		@Override
@@ -89,10 +92,12 @@ public class SquareChess extends _Juego {
 			{
 				return -1.0;
 			}
-			else
+			else if (movidasSinComer > 20)
 			{
-				return null;
+				return 0.0;
 			}
+			else
+				return null;
 		}
 
 		@Override
@@ -162,6 +167,19 @@ public class SquareChess extends _Juego {
 			return false;
 		}
 		
+		protected int[][] copiarTablero()
+		{
+			int[][] copia = new int[ancho][alto];
+			for (int x = 0; x < ancho; x++)
+			{
+				for (int y = 0; y < alto; y++)
+				{
+					copia[x][y] = tablero[x][y];
+				}
+			}
+			return copia;
+		}
+		
 		@Override
 		public String toString() {
 			String salida = "";
@@ -186,8 +204,8 @@ public class SquareChess extends _Juego {
 	
 	private class EstadoInitSqChess extends EstadoSqChess {
 		
-		public EstadoInitSqChess(int turno, int[][] tablero) {
-			super(turno, tablero);
+		public EstadoInitSqChess(int turno, int[][] tablero, int movidasSinComer) {
+			super(turno, tablero, movidasSinComer);
 		}
 
 		@Override
@@ -225,7 +243,7 @@ public class SquareChess extends _Juego {
 
 			@Override
 			public Jugador jugador() {
-				return jugadores[turno % jugadores.length];
+				return getJugador();
 			}
 			
 			public int indiceJugador() {
@@ -236,8 +254,7 @@ public class SquareChess extends _Juego {
 			public String toString()
 			{
 				return "poner " + (int)posicion.x + "," + (int)posicion.y;
-			}
-			
+			}			
 		}
 
 		@Override
@@ -246,12 +263,21 @@ public class SquareChess extends _Juego {
 			if (this.tablero[movSC.posicion.x][movSC.posicion.y] != -1)
 				return this;
 				
-			int[][] tableroSig = this.tablero.clone();
+			int[][] tableroSig = copiarTablero();
 			tableroSig[movSC.posicion.x][movSC.posicion.y] = movSC.indiceJugador();
-			if (celdasVacias() != 0)
-				return new EstadoInitSqChess(this.turno + 1, tableroSig);
+			EstadoSqChess estadoSig = new EstadoInitSqChess(this.turno + 1, tableroSig, 0);
+			if (estadoSig.celdasVacias() != 0)
+				return estadoSig;
 			else
-				return new EstadoRemoverSqChess(this.turno + 1, tableroSig, 0);
+			{
+				Estado sig = new EstadoRemoverSqChess(this.turno + 1, tableroSig, (turno + 1) % 2);
+				if (sig.movimientos(jugadores[0]) == null)
+				{
+					sig = new EstadoRemoverSqChess(this.turno + 1, tableroSig, turno % 2);
+				}
+				
+				return sig;
+			}
 		}
 		
 		@Override
@@ -269,7 +295,7 @@ public class SquareChess extends _Juego {
 		
 		public EstadoRemoverSqChess(int turno, int[][] tablero, int jugadorTurno)
 		{
-			super(turno, tablero);
+			super(turno, tablero, 0);
 			this.removerIniciales = new int[jugadores.length];
 			for (int i = 0; i < jugadores.length; i++)
 			{
@@ -284,13 +310,15 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
-			if (jugador != getJugador())
+			if (!jugador.equals(getJugador()))
 				return null;
+			
 			int idxJugador = 0;
 			while (idxJugador < jugadores.length && !jugadores[idxJugador].equals(jugador))
 				idxJugador++;
 			
 			int idxOponente = (idxJugador + 1) % 2;
+			
 			int fichasOponente = contarFichas(idxOponente);
 			Movimiento[] movimientos = new Movimiento[fichasOponente];
 			int idxMov = 0;
@@ -298,10 +326,47 @@ public class SquareChess extends _Juego {
 				for (int x = 0; x < ancho; x++) {
 					if (tablero[x][y] == idxOponente)
 					{
-						movimientos[idxMov] = new MovimientoRemoverSqChess(new Posicion(x, y));
+						if (!formaCuadrado(new Posicion(x, y), idxOponente, tablero))
+						{
+							movimientos[idxMov] = new MovimientoRemoverSqChess(new Posicion(x, y));
+							idxMov++;
+						}
 					}
 				}
-					
+			}
+			
+			if (idxMov < movimientos.length)
+			{
+				if (idxMov == 0)
+					return null;
+				
+				Movimiento[] movsReales = new Movimiento[idxMov];
+				for (int i = 0; i < idxMov; i++)
+				{
+					movsReales[i] = movimientos[i];
+				}
+				
+				return movsReales;
+			}
+			
+			return movimientos;
+		}
+		
+		@Override
+		public Double resultado(Jugador jugador)
+		{
+			if (contarFichas(-1) == 0)
+			{
+				for (int x = 0; x < ancho; x++)
+				{
+					for (int y = 0; y < alto; y++)
+					{
+						if (!formaCuadrado(new Posicion(x,y), tablero[x][y], tablero))
+							return null;
+					}
+				}
+				
+				return 0.0;
 			}
 			
 			return null;
@@ -349,8 +414,8 @@ public class SquareChess extends _Juego {
 			if (tablero[mov.posicion.x][mov.posicion.y] != idxOponente)
 				return this;
 			
-			int[][] tableroSig = tablero.clone();
-			tableroSig[mov.posicion.x][mov.posicion.y] = jugadorTurno;
+			int[][] tableroSig = copiarTablero();
+			tableroSig[mov.posicion.x][mov.posicion.y] = -1;
 			
 			int turnoFinRemoverInit = alto*ancho + removerIniciales[0] + removerIniciales[1];
 			int turnoSig = turno + 1;
@@ -367,9 +432,9 @@ public class SquareChess extends _Juego {
 			else
 			{
 				jugadorSig = idxOponente;
-				EstadoMoverSqChess estadoSig = new EstadoMoverSqChess(turno + 1, tableroSig, jugadorSig);
+				EstadoMoverSqChess estadoSig = new EstadoMoverSqChess(turno + 1, tableroSig, jugadorSig, movidasSinComer+1);
 				if (estadoSig.movimientos(jugadores[idxOponente]) == null)
-					return new EstadoMoverSqChess(turno + 1, tableroSig, jugadorTurno);
+					return new EstadoMoverSqChess(turno + 1, tableroSig, jugadorTurno, 0);
 				else
 					return estadoSig;
 			}
@@ -380,9 +445,9 @@ public class SquareChess extends _Juego {
 		
 		private final int idxJugador;
 		
-		public EstadoMoverSqChess(int turno, int[][] tablero, int idxJugador)
+		public EstadoMoverSqChess(int turno, int[][] tablero, int idxJugador, int movidasSinComer)
 		{
-			super(turno, tablero);
+			super(turno, tablero, movidasSinComer);
 			this.idxJugador = idxJugador;
 		}
 				
@@ -451,7 +516,7 @@ public class SquareChess extends _Juego {
 			
 			//Izquierda
 			sigPos = pos.mover(-1, 0);
-			while (sigPos.x > 0 && tablero[sigPos.x][sigPos.y] == -1)
+			while (sigPos.x >= 0 && tablero[sigPos.x][sigPos.y] == -1)
 			{
 				MovimientoMoverSqChess mov = new MovimientoMoverSqChess(pos, sigPos);
 				aMovs.add(mov);
@@ -469,7 +534,7 @@ public class SquareChess extends _Juego {
 			
 			//Arriba
 			sigPos = pos.mover(0, -1);
-			while (sigPos.y > 0 && tablero[sigPos.x][sigPos.y] == -1)
+			while (sigPos.y >= 0 && tablero[sigPos.x][sigPos.y] == -1)
 			{
 				MovimientoMoverSqChess mov = new MovimientoMoverSqChess(pos, sigPos);
 				aMovs.add(mov);
@@ -494,7 +559,7 @@ public class SquareChess extends _Juego {
 					return this;
 			}
 			
-			int[][] tableroSig = tablero.clone();
+			int[][] tableroSig = copiarTablero();
 			tableroSig[mov.posFicha.x][mov.posFicha.y] = -1;
 			tableroSig[mov.destinoFicha.x][mov.destinoFicha.y] = idxJugador;
 			if (formaCuadrado(mov.destinoFicha, idxJugador, tablero))
@@ -503,17 +568,17 @@ public class SquareChess extends _Juego {
 				EstadoRemoverSqChess estadoSig = new EstadoRemoverSqChess(turno + 1, tableroSig, idxJugador);
 				if (estadoSig.movimientos(jugadores[idxJugador]) == null)
 				{
-					return new EstadoMoverSqChess(turno + 1, tableroSig, (idxJugador+1) % 2);
+					return new EstadoMoverSqChess(turno + 1, tableroSig, (idxJugador+1) % 2, movidasSinComer+1);
 				}
 				else return estadoSig;
 			}
 			else
 			{
 				int jugadorSig = (idxJugador+1) % 2;
-				EstadoSqChess estadoSig = new EstadoMoverSqChess(turno + 1, tableroSig, jugadorSig);
+				EstadoSqChess estadoSig = new EstadoMoverSqChess(turno + 1, tableroSig, jugadorSig, movidasSinComer+1);
 				if (estadoSig.movimientos(jugadores[jugadorSig]) == null)
 				{
-					return new EstadoMoverSqChess(turno + 1, tableroSig, idxJugador);
+					return new EstadoMoverSqChess(turno + 1, tableroSig, idxJugador, movidasSinComer+1);
 				}
 				else
 					return estadoSig;
