@@ -24,6 +24,17 @@ public class SquareChess extends _Juego {
 		this.ancho = ancho;
 	}
 
+	private final int[][] TABLERO_PRUEBA = {
+			{0, -1,  0, -1, -1, -1, -1},
+			{-1,  0,  0, -1, -1, -1, -1},
+			{-1, -1, -1, -1,  1,  1, -1},
+			{-1, -1, -1, -1,  1, -1, 1},
+			{-1, -1, -1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1, -1, -1},
+			};
+	
 	private static int[][] tableroVacio(int alto, int ancho)
 	{
 		int[][] tablero = new int[ancho][alto];
@@ -41,6 +52,7 @@ public class SquareChess extends _Juego {
 	@Override
 	public Estado inicio(Jugador... jugadores) {
 		return new EstadoInitSqChess(0, tableroVacio(alto, ancho), 0);
+		//return new EstadoMoverSqChess(300, TABLERO_PRUEBA, 1, 7);
 	}
 	
 	public class EstadoSqChess implements Estado {
@@ -92,7 +104,7 @@ public class SquareChess extends _Juego {
 			{
 				return -1.0;
 			}
-			else if (movidasSinComer > 20)
+			else if (movidasSinComer > 10)
 			{
 				return 0.0;
 			}
@@ -110,7 +122,7 @@ public class SquareChess extends _Juego {
 			return contarFichas(-1);
 		}
 		
-		protected int contarCuadrados(int jugador)
+		public int contarCuadrados(int jugador)
 		{
 			int cuadrados = 0;
 			for (int y = 0; y < alto-1; y++) {
@@ -123,7 +135,7 @@ public class SquareChess extends _Juego {
 			return cuadrados;
 		}
 		
-		protected int contarFichas(int tipoFicha)
+		public int contarFichas(int tipoFicha)
 		{
 			int fichas = 0;
 			for (int y = 0; y < alto; y++) {
@@ -183,14 +195,15 @@ public class SquareChess extends _Juego {
 		@Override
 		public String toString() {
 			String salida = "";
-			for (int y = 0; y < alto; y++) {
-				for (int x = 0; x < ancho; x++) {
+			for (int x = 0; x < ancho; x++) {
+				for (int y = 0; y < alto; y++) {
+				
 					if (tablero[x][y] == -1)
 						salida += "v" + " ";
 					else
 						salida += jugadores[tablero[x][y]].toString().substring(0,1) + " ";
 				}
-				if (y < alto -1)
+				if (x < ancho -1)
 					salida += "\n";
 			}
 			return salida;
@@ -202,7 +215,7 @@ public class SquareChess extends _Juego {
 		}
 	}
 	
-	private class EstadoInitSqChess extends EstadoSqChess {
+	public class EstadoInitSqChess extends EstadoSqChess {
 		
 		public EstadoInitSqChess(int turno, int[][] tablero, int movidasSinComer) {
 			super(turno, tablero, movidasSinComer);
@@ -369,7 +382,7 @@ public class SquareChess extends _Juego {
 				return 0.0;
 			}
 			
-			return null;
+			return super.resultado(jugador);
 		}
 		
 		public class MovimientoRemoverSqChess implements Movimiento {
@@ -476,7 +489,7 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return "mover" + (int)posFicha.x + "," + (int)posFicha.y + " a " + (int)destinoFicha.x + "," + (int)destinoFicha.y;
+				return "mover " + (int)posFicha.x + "," + (int)posFicha.y + " a " + (int)destinoFicha.x + "," + (int)destinoFicha.y;
 			}
 		}
 
@@ -562,7 +575,7 @@ public class SquareChess extends _Juego {
 			int[][] tableroSig = copiarTablero();
 			tableroSig[mov.posFicha.x][mov.posFicha.y] = -1;
 			tableroSig[mov.destinoFicha.x][mov.destinoFicha.y] = idxJugador;
-			if (formaCuadrado(mov.destinoFicha, idxJugador, tablero))
+			if (formaCuadrado(mov.destinoFicha, idxJugador, tableroSig))
 			{
 				
 				EstadoRemoverSqChess estadoSig = new EstadoRemoverSqChess(turno + 1, tableroSig, idxJugador);
