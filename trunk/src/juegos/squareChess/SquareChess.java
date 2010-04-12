@@ -440,7 +440,25 @@ public class SquareChess extends _Juego {
 				else
 					jugadorSig = 1;
 				
-				return new EstadoRemoverSqChess(turnoSig, tableroSig, jugadorSig);
+				EstadoRemoverSqChess sig = new EstadoRemoverSqChess(turnoSig, tableroSig, jugadorSig);
+				if (sig.movimientos(jugadores[jugadorSig]) == null)
+				{
+					if (jugadorSig == 0)
+					{
+						sig = new EstadoRemoverSqChess(alto*ancho + removerIniciales[0], tableroSig, 1);
+						if (sig.movimientos(jugadores[1]) == null)
+						{
+							return new EstadoMoverSqChess(turnoSig, tableroSig, 0, 0);
+						}
+						return sig;
+					}
+					else
+					{
+						return new EstadoMoverSqChess(turnoSig, tableroSig, 0, 0);
+					}
+				}
+				
+				return sig;
 			}
 			else
 			{
