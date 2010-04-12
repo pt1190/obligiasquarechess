@@ -1,5 +1,7 @@
 package juegos.agentes;
 
+import java.util.Date;
+
 import juegos.base.Agente;
 import juegos.base.Estado;
 import juegos.base.Jugador;
@@ -19,8 +21,13 @@ public class AgenteMiniMax implements Agente {
 
 	@Override
 	public Movimiento decision(Estado estado) {
+		long init = System.currentTimeMillis();
+		
 		AlfaBeta alfaBeta = max(estado, jugador, new AlfaBeta(-900.0), new AlfaBeta(900.0));
-		System.out.println("AB = " + alfaBeta.valor);
+		
+		long fin = System.currentTimeMillis();
+		double deltaSecs = (fin - init) / 100.0;
+		System.out.println("Tiempo decision = " + deltaSecs);
 		return alfaBeta.getMov();
 	}
 	

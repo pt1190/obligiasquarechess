@@ -5,12 +5,13 @@ import juegos.base.Estado;
 import juegos.base.Jugador;
 import juegos.base.Movimiento;
 import juegos.squareChess.SquareChess.EstadoSqChess;
+import juegos.squareChess.SquareChess.EstadoInitSqChess;
 
 public class AgenteMiniMaxSqChess implements Agente {
 	
 	private Jugador jugador;
 
-	private int profundidadMax = 20;
+	private int profundidadMax = 5;
 	
 	public AgenteMiniMaxSqChess() {
 	}
@@ -29,15 +30,24 @@ public class AgenteMiniMaxSqChess implements Agente {
 	
 	private AlfaBeta minimax(Estado estado, AlfaBeta alfa, AlfaBeta beta)	
 	{
-		if (alfa.profundidad >= profundidadMax)
-			return new AlfaBeta(0.0);
+		EstadoSqChess estSqChess = (EstadoSqChess)estado;
 		Double res = estado.resultado(jugador);
 		if (res != null)
 		{
 			return new AlfaBeta(res);
 		}
+		if (alfa.profundidad >= profundidadMax)
+		{
+			int idxJugador = estado.jugadores()[0] == jugador ? 0 : 1;
+			int idxOponente = (idxJugador+1) % 2;
+			double val = (double)(estSqChess.contarFichas(idxJugador) - estSqChess.contarFichas(idxOponente)) / 27.0;
+			if (estado.getClass().equals(EstadoInitSqChess.class))
+			{
+				val = (double)(estSqChess.contarCuadrados(idxJugador) - estSqChess.contarCuadrados(idxOponente)) / 18.0;
+			}
+			return new AlfaBeta(val);
+		}
 		
-		EstadoSqChess estSqChess = (EstadoSqChess)estado;
 		Jugador jugadorEstado = estSqChess.getJugador();
 		
 		if (jugador.equals(jugadorEstado))
