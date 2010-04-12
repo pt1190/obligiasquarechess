@@ -29,6 +29,9 @@ public class Posicion
 	@Override
 	public boolean equals(Object object)
 	{
+		if (object == null)
+			return false;
+		
 		if (object.getClass().equals(Posicion.class))
 		{
 			Posicion pos = (Posicion)object;

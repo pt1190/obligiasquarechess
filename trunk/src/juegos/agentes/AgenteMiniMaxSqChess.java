@@ -4,13 +4,14 @@ import juegos.base.Agente;
 import juegos.base.Estado;
 import juegos.base.Jugador;
 import juegos.base.Movimiento;
-import juegos.squareChess.SquareChess;
 import juegos.squareChess.SquareChess.EstadoSqChess;
 
 public class AgenteMiniMaxSqChess implements Agente {
 	
 	private Jugador jugador;
 
+	private int profundidadMax = 20;
+	
 	public AgenteMiniMaxSqChess() {
 	}
 
@@ -21,68 +22,55 @@ public class AgenteMiniMaxSqChess implements Agente {
 
 	@Override
 	public Movimiento decision(Estado estado) {
-		AlfaBeta alfaBeta = minimax(estado, new AlfaBeta(-15.0), new AlfaBeta(15.0));
+		AlfaBeta alfaBeta = minimax(estado, new AlfaBeta(-100.0), new AlfaBeta(100.0));
 		System.out.println("AB = " + alfaBeta.valor);
 		return alfaBeta.getMov();
 	}
 	
-	private AlfaBeta minimax(Estado estado, AlfaBeta alfa, AlfaBeta beta)
+	private AlfaBeta minimax(Estado estado, AlfaBeta alfa, AlfaBeta beta)	
 	{
+		if (alfa.profundidad >= profundidadMax)
+			return new AlfaBeta(0.0);
+		Double res = estado.resultado(jugador);
+		if (res != null)
+		{
+			return new AlfaBeta(res);
+		}
+		
 		EstadoSqChess estSqChess = (EstadoSqChess)estado;
 		Jugador jugadorEstado = estSqChess.getJugador();
-		if (jugador == jugadorEstado)
+		
+		if (jugador.equals(jugadorEstado))
 		{
-			Double res = estado.resultado(jugador);
-			if (res != null)
+			Movimiento[] movs = estado.movimientos(jugador);
+			AlfaBeta ab;
+			for (Movimiento mov : movs)
 			{
-				return new AlfaBeta(res);
+				ab = minimax(estado.siguiente(mov), alfa.sig(), beta.sig());
+				ab.mov = mov;
+				if (ab.valor > alfa.valor  || (ab.valor == alfa.valor && ab.profundidad < alfa.profundidad))
+					alfa = ab;
+				if (alfa.valor >= beta.valor)
+					return alfa;
 			}
-			else
-			{
-				Jugador oponente = getOther(jugador, estado);
-				Movimiento[] movs = estado.movimientos(jugador);
-				AlfaBeta ab;
-				for (Movimiento mov : movs)
-				{
-					ab = minimax(estado.siguiente(mov), alfa, beta);
-					ab.mov = mov;
-					if (ab.valor > alfa.valor)
-						alfa = ab;
-					if (alfa.valor > beta.valor)
-						return alfa;
-				}
-				return alfa;
-			}
+			return alfa;
 		}
 		else
 		{
-			Double res = estado.resultado(jugadorEstado);
-			if (res != null)
+			Movimiento[] movs = estado.movimientos(jugadorEstado);
+			AlfaBeta ab;
+			for (Movimiento mov : movs)
 			{
-				return new AlfaBeta(res);
+				ab = minimax(estado.siguiente(mov), alfa.sig(), beta.sig());
+				ab.mov = mov;
+				if (ab.valor < beta.valor  || (ab.valor == beta.valor && ab.profundidad < beta.profundidad))
+					beta = ab;
+				if (alfa.valor > beta.valor)
+					return beta;
 			}
-			else
-			{
-				Movimiento[] movs = estado.movimientos(jugadorEstado);
-				AlfaBeta ab;
-				for (Movimiento mov : movs)
-				{
-					ab = minimax(estado.siguiente(mov), alfa, beta);
-					ab.mov = mov;
-					if (ab.valor < beta.valor)
-						beta = ab;
-					if (alfa.valor > beta.valor)
-						return beta;
-				}
-				
-				return beta;
-			}
+			
+			return beta;
 		}
-	}
-	
-	private Jugador getOther(Jugador j, Estado e){
-		Jugador[] jugs = e.jugadores();
-		return jugs[0].equals(j) ? jugs[1] : jugs[0];
 	}
 
 	@Override
@@ -106,6 +94,7 @@ public class AgenteMiniMaxSqChess implements Agente {
 		
 		private Movimiento mov;
 		private Double valor; // Valor correspondiente al estado final contenido en el movimiento
+		private int profundidad;
 		
 		public Movimiento getMov() {
 			return mov;
@@ -123,16 +112,22 @@ public class AgenteMiniMaxSqChess implements Agente {
 			this.valor = valor;
 		}
 		
-		public AlfaBeta(Double v, Movimiento m){
+		public AlfaBeta(Double v, Movimiento m, int prof){
 			valor = v;
 			mov = m;
+			profundidad = prof;
 		}
 		
 		public AlfaBeta(Double v){
 			valor = v;
 			mov = null;
+			profundidad = 1;
+		}
+		
+		public AlfaBeta sig()
+		{
+			return new AlfaBeta(this.valor, this.mov, this.profundidad+1);
 		}
 
 	}
-
 }
