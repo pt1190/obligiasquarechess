@@ -1,7 +1,5 @@
 package juegos.agentes;
 
-import java.util.Date;
-
 import juegos.base.Agente;
 import juegos.base.Estado;
 import juegos.base.Jugador;

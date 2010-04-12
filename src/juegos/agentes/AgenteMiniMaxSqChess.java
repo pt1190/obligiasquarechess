@@ -38,8 +38,8 @@ public class AgenteMiniMaxSqChess implements Agente {
 		}
 		if (alfa.profundidad >= profundidadMax)
 		{
-			int idxJugador = estado.jugadores()[0] == jugador ? 0 : 1;
-			int idxOponente = (idxJugador+1) % 2;
+			int idxJugador = estado.jugadores()[0].equals(jugador) ? 0 : 1;
+			int idxOponente = idxJugador == 0 ? 1 : 0;
 			double val = (double)(estSqChess.contarFichas(idxJugador) - estSqChess.contarFichas(idxOponente)) / 27.0;
 			if (estado.getClass().equals(EstadoInitSqChess.class))
 			{
