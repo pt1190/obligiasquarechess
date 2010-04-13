@@ -40,10 +40,14 @@ public class AgenteMiniMaxSqChess implements Agente {
 		{
 			int idxJugador = estado.jugadores()[0].equals(jugador) ? 0 : 1;
 			int idxOponente = idxJugador == 0 ? 1 : 0;
-			double val = (double)(estSqChess.contarFichas(idxJugador) - estSqChess.contarFichas(idxOponente)) / 27.0;
+			double val = 0.0;
 			if (estado.getClass().equals(EstadoInitSqChess.class))
 			{
 				val = (double)(estSqChess.contarCuadrados(idxJugador) - estSqChess.contarCuadrados(idxOponente)) / 18.0;
+			}
+			else
+			{
+				val = (double)(estSqChess.contarFichas(idxJugador) - estSqChess.contarFichas(idxOponente)) / 27.0;
 			}
 			return new AlfaBeta(val);
 		}

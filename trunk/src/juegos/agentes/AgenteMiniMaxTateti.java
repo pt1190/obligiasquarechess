@@ -5,11 +5,11 @@ import juegos.base.Estado;
 import juegos.base.Jugador;
 import juegos.base.Movimiento;
 
-public class AgenteMiniMax implements Agente {
+public class AgenteMiniMaxTateti implements Agente {
 	
 	private Jugador jugador;
 
-	public AgenteMiniMax() {
+	public AgenteMiniMaxTateti() {
 	}
 
 	@Override
