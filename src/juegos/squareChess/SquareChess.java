@@ -90,10 +90,7 @@ public class SquareChess extends _Juego {
 			if (turno < alto*ancho)
 				return null;
 			
-			int idxOponente = 0;
-			while (jugadores[idxOponente].equals(jugador))
-				idxOponente++;
-			
+			int idxOponente = jugadores[0].equals(jugador) ? 1 : 0;
 			int idxJugador = (idxOponente + 1) % 2;
 			
 			if (contarFichas(idxOponente) < 4)
@@ -223,7 +220,7 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
-			if (jugador != getJugador())
+			if (!jugador.equals(getJugador()) || resultado(jugador) != null)
 				return null;
 			Movimiento[] movs = new Movimiento[celdasVacias()];
 			int i = 0;
@@ -323,7 +320,7 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
-			if (!jugador.equals(getJugador()))
+			if (!jugador.equals(getJugador()) || resultado(jugador) != null)
 				return null;
 			
 			int idxJugador = 0;
@@ -368,7 +365,7 @@ public class SquareChess extends _Juego {
 		@Override
 		public Double resultado(Jugador jugador)
 		{
-			if (contarFichas(-1) == 0)
+			if (celdasVacias() == 0)
 			{
 				for (int x = 0; x < ancho; x++)
 				{
@@ -513,7 +510,7 @@ public class SquareChess extends _Juego {
 
 		@Override
 		public Movimiento[] movimientos(Jugador jugador) {
-			if (jugador != getJugador())
+			if (jugador != getJugador() || resultado(jugador) != null)
 				return null;
 			
 			ArrayList<MovimientoMoverSqChess> movs = new ArrayList<MovimientoMoverSqChess>();
