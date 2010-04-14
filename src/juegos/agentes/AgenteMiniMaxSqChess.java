@@ -11,7 +11,7 @@ public class AgenteMiniMaxSqChess implements Agente {
 	
 	private Jugador jugador;
 
-	private int profundidadMax = 5;
+	private int profundidadMax = 3;
 	
 	public AgenteMiniMaxSqChess() {
 	}
@@ -43,7 +43,7 @@ public class AgenteMiniMaxSqChess implements Agente {
 			double val = 0.0;
 			if (estado.getClass().equals(EstadoInitSqChess.class))
 			{
-				val = (double)(estSqChess.contarCuadrados(idxJugador) - estSqChess.contarCuadrados(idxOponente)) / 18.0;
+				val = (heurísticaInit(estado, idxJugador) - heurísticaInit(estado, idxOponente)) / 18.0;
 			}
 			else
 			{
@@ -85,6 +85,41 @@ public class AgenteMiniMaxSqChess implements Agente {
 			
 			return beta;
 		}
+	}
+	
+	private double heurísticaInit(Estado estado, int idxJugador)
+	{
+		double val = 0.0;
+		EstadoSqChess estSqChess = (EstadoSqChess)estado;
+		
+		int idxOponente = idxJugador == 0 ? 1 : 0;
+		
+		int[][] tablero = estSqChess.getTablero();
+		int ancho = tablero.length;
+		int alto = tablero[0].length;
+		
+		for (int x = 0; x < ancho-1; x++)
+		{
+			for (int y = 0; y < alto-1; y++)
+			{
+				if (tablero[x][y] == idxOponente || tablero[x+1][y] == idxOponente || tablero[x][y+1] == idxOponente || tablero[x+1][y+1] == idxOponente)
+					continue;
+				
+				if (tablero[x][y] == idxJugador)
+					val += 0.25;
+				
+				if (tablero[x+1][y] == idxJugador)
+					val += 0.25;
+				
+				if (tablero[x+1][y+1] == idxJugador)
+					val += 0.25;
+				
+				if (tablero[x][y+1] == idxJugador)
+					val += 0.25;
+			}
+		}
+		
+		return val;
 	}
 
 	@Override

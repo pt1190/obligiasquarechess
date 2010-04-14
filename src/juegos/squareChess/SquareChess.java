@@ -70,6 +70,11 @@ public class SquareChess extends _Juego {
 			this.movidasSinComer = movidasSinComer;
 		}
 		
+		public int[][] getTablero()
+		{
+			return tablero;
+		}
+		
 		@Override
 		public Juego juego() {
 			return SquareChess.this;
