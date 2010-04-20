@@ -24,6 +24,7 @@ public class SquareChess extends _Juego {
 		this.ancho = ancho;
 	}
 
+	// Tablero de prueba para la prueba de las siguientes etapas del juego
 	private final int[][] TABLERO_PRUEBA = {
 			{0, -1,  0, -1, -1, -1, -1},
 			{-1,  0,  0, -1, -1, -1, -1},
@@ -201,7 +202,7 @@ public class SquareChess extends _Juego {
 				for (int y = 0; y < alto; y++) {
 				
 					if (tablero[x][y] == -1)
-						salida += "v" + " ";
+						salida += "-" + " ";
 					else
 						salida += jugadores[tablero[x][y]].toString().substring(0,1) + " ";
 				}
