@@ -5,7 +5,6 @@ import juegos.base.Estado;
 import juegos.base.Jugador;
 import juegos.base.Movimiento;
 import juegos.squareChess.SquareChess.EstadoSqChess;
-import juegos.squareChess.SquareChess.EstadoInitSqChess;
 
 public class AgenteMiniMaxSqChess implements Agente {
 	
@@ -23,8 +22,12 @@ public class AgenteMiniMaxSqChess implements Agente {
 
 	@Override
 	public Movimiento decision(Estado estado) {
+		long init = System.currentTimeMillis();
 		AlfaBeta alfaBeta = minimax(estado, new AlfaBeta(-100.0), new AlfaBeta(100.0));
-		System.out.println("AB = " + alfaBeta.valor);
+		//System.out.println("AB = " + alfaBeta.valor);  // Descomentar para verificar el valor de alfa/beta del mov elegido
+		long fin = System.currentTimeMillis();
+		double deltaSecs = (fin - init) / 100.0;
+		System.out.println("Tiempo decision = " + deltaSecs + " secs.");
 		return alfaBeta.getMov();
 	}
 	

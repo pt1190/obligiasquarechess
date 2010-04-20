@@ -20,9 +20,7 @@ public class AgenteMiniMaxTateti implements Agente {
 	@Override
 	public Movimiento decision(Estado estado) {
 		long init = System.currentTimeMillis();
-		
 		AlfaBeta alfaBeta = max(estado, jugador, new AlfaBeta(-900.0), new AlfaBeta(900.0));
-		
 		long fin = System.currentTimeMillis();
 		double deltaSecs = (fin - init) / 100.0;
 		System.out.println("Tiempo decision = " + deltaSecs);
