@@ -18,6 +18,8 @@ public class SquareChess extends _Juego {
 	
 	private final int alto;
 	
+	private final int maxMovidasSinComer = 20;
+	
 	public SquareChess(int alto, int ancho, String primero, String segundo) {
 		super("SquareChess", primero, segundo);
 		this.alto = alto;
@@ -107,7 +109,7 @@ public class SquareChess extends _Juego {
 			{
 				return -1.0;
 			}
-			else if (movidasSinComer > 10)
+			else if (movidasSinComer > maxMovidasSinComer)
 			{
 				return 0.0;
 			}
