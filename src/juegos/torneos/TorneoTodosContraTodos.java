@@ -72,7 +72,7 @@ public class TorneoTodosContraTodos extends _Torneo {
 	/** Prueba rápida con un torneo de Tateti entre dos jugadores aleatorios. 
 	 */
 	public static void main(String[] args) throws Exception {
-		Torneo torneo = new TorneoTodosContraTodos(50, SquareChess.JUEGO, 
+		Torneo torneo = new TorneoTodosContraTodos(20, SquareChess.JUEGO, 
 			new AgenteAleatorio(), new AgenteMiniMaxSqChess());
 		int cantidadPartidas = torneo.completar();
 		System.out.println(torneo);
