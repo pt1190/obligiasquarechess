@@ -20,6 +20,8 @@ public class SquareChess extends _Juego {
 	
 	private final int maxMovidasSinComer = 20;
 	
+	public final String alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	
 	public SquareChess(int alto, int ancho, String primero, String segundo) {
 		super("SquareChess", primero, segundo);
 		this.alto = alto;
@@ -271,7 +273,8 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return "poner " + (int)posicion.x + "," + (int)posicion.y;
+				int posy = posicion.y + 1;
+				return "" + alfabeto.charAt(posicion.x) + posy;
 			}			
 		}
 
@@ -412,7 +415,8 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return "remover " + (int)posicion.x + "," + (int)posicion.y;
+				int posy = posicion.y + 1;
+				return "" + alfabeto.charAt(posicion.x) + posy;
 			}
 		}
 		
@@ -512,7 +516,7 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return "mover " + (int)posFicha.x + "," + (int)posFicha.y + " a " + (int)destinoFicha.x + "," + (int)destinoFicha.y;
+				return "mover " + alfabeto.charAt(posFicha.x) + (int)posFicha.y + " a " + alfabeto.charAt(destinoFicha.x) + (int)destinoFicha.y;
 			}
 		}
 
