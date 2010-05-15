@@ -2,8 +2,10 @@ package juegos.torneos;
 
 import juegos.Partida;
 import juegos.agentes.AgenteAleatorio;
+import juegos.agentes.AgenteMiniMaxSqChess;
 import juegos.base.*;
 import juegos.tateti.Tateti;
+import juegos.squareChess.SquareChess;;
 
 /** Torneo que hace jugar a todos los agentes contra todos los agentes, jugando
  *  con todos los jugadores, repetido una cierta cantidad de veces.  
@@ -70,8 +72,8 @@ public class TorneoTodosContraTodos extends _Torneo {
 	/** Prueba rápida con un torneo de Tateti entre dos jugadores aleatorios. 
 	 */
 	public static void main(String[] args) throws Exception {
-		Torneo torneo = new TorneoTodosContraTodos(20, Tateti.JUEGO, 
-			new AgenteAleatorio(), new AgenteAleatorio());
+		Torneo torneo = new TorneoTodosContraTodos(50, SquareChess.JUEGO, 
+			new AgenteAleatorio(), new AgenteMiniMaxSqChess());
 		int cantidadPartidas = torneo.completar();
 		System.out.println(torneo);
 		System.out.println("Total de partidas = "+ cantidadPartidas);
