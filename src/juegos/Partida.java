@@ -1,6 +1,7 @@
 package juegos;
 
 import java.util.*;
+
 import juegos.base.*;
 
 /** Controlador básico de una partida. 
@@ -55,6 +56,8 @@ public class Partida {
 			}
 			resultados = new double[agentes.length];
 			for (int i = 0; i < resultados.length; i++) {
+				if (actual.resultado(agentes[i].jugador()) == null)
+					System.out.println("NULOOOOOOO!!! \n" + actual.toString() + "\n" + actual.getClass() + "\n" + Arrays.toString(actual.movimientos(agentes[i].jugador())));
 				resultados[i] = actual.resultado(agentes[i].jugador());
 				agentes[i].fin(actual);
 			}
