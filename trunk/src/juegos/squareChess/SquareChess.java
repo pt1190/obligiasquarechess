@@ -72,6 +72,7 @@ public class SquareChess extends _Juego {
 	/**
 	 *  Tablero de prueba para la prueba de las siguientes etapas del juego
 	 */
+	@SuppressWarnings("unused")
 	private final int[][] TABLERO_PRUEBA = {
 			{ 0, -1,  0, -1, -1, -1, -1},
 			{-1,  0,  0, -1, -1, -1, -1},
