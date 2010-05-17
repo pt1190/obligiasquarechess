@@ -39,9 +39,7 @@ public class AgenteGeneticoSqChess implements Agente {
 		fCuadradosOp = -1;
 	}
 	
-	public AgenteGeneticoSqChess(double[] factores) throws Exception {
-		if (factores.length != 6)
-			throw new Exception("Cantidad de factores inválida");
+	public AgenteGeneticoSqChess(double[] factores) {
 		fFichas = factores[0];
 		fFichasOp = factores[1];
 		fCuadradosParciales = factores[2];
