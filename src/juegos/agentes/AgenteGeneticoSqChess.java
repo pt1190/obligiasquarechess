@@ -9,16 +9,24 @@ import juegos.squareChess.SquareChess.EstadoInitSqChess;;
 
 public class AgenteGeneticoSqChess implements Agente {
 	
+	// Jugador que representa este agente
 	private Jugador jugador;
 
+	// Profundidad máxima del árbol minimax
 	private int profundidadMax = 3;
 	
+	// Factor de la función heurística que representa la 
+	// cantidad de fichas del jugador y del oponente (op)
 	private double fFichas;
 	private double fFichasOp;
 	
+	// Factor de la función heurística que representa la cantidad
+	// de cuadrados parciales del jugador y del oponente (op)
 	private double fCuadradosParciales;
 	private double fCuadradosParcialesOp;
 	
+	// Factor de la función heurística que representa la 
+	// cantidad de cuadrados del jugador y del oponente (op)
 	private double fCuadrados;
 	private double fCuadradosOp;
 	
@@ -115,7 +123,8 @@ public class AgenteGeneticoSqChess implements Agente {
 		EstadoSqChess estSqChess = (EstadoSqChess)estado;
 		
 		double valHeuristica = 0;
-		//En el estado inicial no importa la cantidad de fichas, así que la ignoramos
+		
+		//En el estado inicial no importa la cantidad de fichas, así que se ignora
 		if (!estSqChess.getClass().equals(EstadoInitSqChess.class))
 		{
 			valHeuristica += fFichas * estSqChess.contarFichas(idxJugador);
@@ -123,67 +132,32 @@ public class AgenteGeneticoSqChess implements Agente {
 		}
 		valHeuristica += fCuadrados * estSqChess.contarCuadrados(idxJugador);
 		valHeuristica += fCuadradosOp * estSqChess.contarCuadrados(idxOponente);
-		valHeuristica += fCuadradosParciales * cuadradosParciales(estSqChess, idxJugador);
-		valHeuristica += fCuadradosParcialesOp * cuadradosParciales(estSqChess, idxOponente);
+		valHeuristica += fCuadradosParciales * estSqChess.cuadradosParciales(idxJugador);
+		valHeuristica += fCuadradosParcialesOp * estSqChess.cuadradosParciales(idxOponente);
 		
 		return valHeuristica;
 	}
 	
-	private double cuadradosParciales(EstadoSqChess estSqChess, int idxJugador)
+	public String toString()
 	{
-		int idxOponente = idxJugador == 0 ? 1 : 0;
-		
-		int[][] tablero = estSqChess.getTablero();
-		int ancho = tablero.length;
-		int alto = tablero[0].length;
-		double val = 0;
-		for (int x = 0; x < ancho-1; x++)
-		{
-			for (int y = 0; y < alto-1; y++)
-			{
-				if (tablero[x][y] == idxOponente || tablero[x+1][y] == idxOponente || tablero[x][y+1] == idxOponente || tablero[x+1][y+1] == idxOponente)
-					continue;
-				
-				if (tablero[x][y] == idxJugador && tablero[x+1][y] == idxJugador && tablero[x][y+1] == idxJugador && tablero[x+1][y+1] == idxJugador)
-				{
-					val += 1.0;
-					continue;
-				}
-				
-				if (tablero[x][y] == idxJugador)
-					val += 0.25;
-				
-				if (tablero[x+1][y] == idxJugador)
-					val += 0.25;
-				
-				if (tablero[x+1][y+1] == idxJugador)
-					val += 0.25;
-				
-				if (tablero[x][y+1] == idxJugador)
-					val += 0.25;
-			}
-		}
-		
-		return val;
+		return "[" + fFichas + "/" + fFichasOp + ", " + 
+			   fCuadradosParciales + "/" + fCuadradosParcialesOp + ", " +
+			   fCuadrados + "/" + fCuadradosOp + "]";
 	}
 
 	@Override
-	public void fin(Estado estado) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void fin(Estado estado){}
 
 	@Override
-	public Jugador jugador() {
+	public Jugador jugador() 
+	{
 		return jugador;
 	}
 
 	@Override
-	public void movimiento(Movimiento movimiento, Estado estado) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void movimiento(Movimiento movimiento, Estado estado){}
 	
+	// Representa un nodo del arbol Minimax con poda Alfa-Beta
 	public class AlfaBeta {
 		
 		private Movimiento mov;

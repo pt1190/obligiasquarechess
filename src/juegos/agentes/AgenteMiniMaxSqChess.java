@@ -126,8 +126,6 @@ public class AgenteMiniMaxSqChess implements Agente {
 
 	@Override
 	public void fin(Estado estado) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -137,8 +135,6 @@ public class AgenteMiniMaxSqChess implements Agente {
 
 	@Override
 	public void movimiento(Movimiento movimiento, Estado estado) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	public class AlfaBeta {
