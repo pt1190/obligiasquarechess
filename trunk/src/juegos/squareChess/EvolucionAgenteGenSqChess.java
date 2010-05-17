@@ -1,5 +1,7 @@
 package juegos.squareChess;
 
+import java.util.Arrays;
+
 import org.jgap.BulkFitnessFunction;
 import org.jgap.Chromosome;
 import org.jgap.Configuration;
@@ -7,13 +9,10 @@ import org.jgap.DeltaFitnessEvaluator;
 import org.jgap.Gene;
 import org.jgap.Genotype;
 import org.jgap.IChromosome;
+import org.jgap.InvalidConfigurationException;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
-import juegos.agentes.AgenteAleatorio;
-import juegos.agentes.AgenteMiniMaxSqChess;
 import juegos.agentes.AgenteGeneticoSqChess;
-import juegos.base.Agente;
-import juegos.Partida;
 
 /** 
  * Obtiene una función heurística óptima para utilizar en el Square Chess.
@@ -40,10 +39,15 @@ import juegos.Partida;
  */
 public class EvolucionAgenteGenSqChess {
 	
+	public static final int POPULATION_SIZE = 100;
+	public static final long LOG_TIME = 100;
 	public static final BulkFitnessFunction FITNESS_FUNCTION = new SqChessBulkFitnessFunction();
 	
-	public static AgenteGeneticoSqChess EvolucionarAgenteGenSqChess(int poblacionInicial, int generaciones) throws Exception
-	{
+	public static boolean endEvolution(Genotype population, int generation) {
+		return generation > 1000 || population.getFittestChromosome().getFitnessValue() == 10;
+	}
+	
+	public static void main(String[] args) throws InvalidConfigurationException {
 		Configuration conf = new DefaultConfiguration();
 		Configuration.reset();
 		conf.setFitnessEvaluator(new DeltaFitnessEvaluator());
@@ -57,76 +61,29 @@ public class EvolucionAgenteGenSqChess {
 	    conf.setSampleChromosome(sampleChromosome);
 	    conf.setSelectFromPrevGen(0.1);
 	    conf.setPreservFittestIndividual(true);
-	    conf.setPopulationSize(poblacionInicial);
+	    conf.setPopulationSize(POPULATION_SIZE);
 	    Genotype population = Genotype.randomInitialGenotype(conf);
 
 	    System.out.println("Evolving.");
 	    long startTime = System.currentTimeMillis();
-	    for (int i = 1; i < generaciones; i++) {
-	    	
-    		// Competencias
-    		IChromosome[] cromosomas = population.getPopulation().toChromosomes();
-    		for (int k = 0; k < cromosomas.length; k++)
-    		{
-    			Agente jugador = new AgenteGeneticoSqChess(chromosomeToArray(cromosomas[k]));;
-    			int partidasGanadas = 0;
-    			for (int j = 0; j < cromosomas.length / 10; j++)
-    			{
-    				Agente oponente;
-    				int idxOp = k;
-    				while (idxOp == k)
-    					idxOp = (int)Math.round(Math.random() * (cromosomas.length + 1));
-
-    				if (idxOp < cromosomas.length)
-    				{
-    					try
-    					{
-    						oponente = new AgenteGeneticoSqChess(chromosomeToArray(cromosomas[idxOp]));
-    					}
-    					catch (Exception e)
-    					{
-    						throw new Exception("Error al crear agente genetico");
-    					}
-    				}
-    				else if (idxOp == cromosomas.length)
-    				{
-    					oponente = new AgenteMiniMaxSqChess();
-    				}
-    				else
-    				{
-    					oponente = new AgenteAleatorio();
-    				}
-    				
-    				Partida partida = new Partida(SquareChess.JUEGO, jugador, oponente);
-    				if (partida.resultados()[0] == 1)
-    				{
-    					partidasGanadas++;
-    				}
-    				
-    			}
-    			
-    			cromosomas[k].setFitnessValue(partidasGanadas);
-    		}
-
+	    long lastTime = startTime;
+	    for (int i = 1; !endEvolution(population, i); i++) {	    	
+	    	if (System.currentTimeMillis() - lastTime > LOG_TIME) {
+	    		lastTime = System.currentTimeMillis();
+	    		IChromosome fittest = population.getFittestChromosome();
+	    		System.out.println("\tEvolution time: "+ (lastTime - startTime) 
+	    				+" ms, generation "+ i +", fittest = "+
+	    				Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest))
+	    				+" with "+ fittest.getFitnessValue() +" fitness.");	
+	    	}
 	    	population.evolve();
 	    }
 	    long endTime = System.currentTimeMillis();
-	    System.out.println("Fin Evolución. Tiempo = " + (endTime-startTime));
 	    
-	    return new AgenteGeneticoSqChess(chromosomeToArray(population.getFittestChromosome()));
-	}
-	
-	public static final double[] chromosomeToArray(IChromosome chromosome) {
-		double[] genes = new double[6];
-		for (int i = 0; i < 6; i++) {
-			genes[i] = (Double)chromosome.getGene(i).getAllele();
-		}
-		return genes;
-	}
-	
-	public static void main(String[] args) throws Exception
-	{
-		AgenteGeneticoSqChess best = EvolucionarAgenteGenSqChess(100, 1000);
-		System.out.println(best.toString());
+	    System.out.println("Total evolution time: "+ (endTime - startTime) +" ms");
+	    IChromosome fittest = population.getFittestChromosome();
+	    System.out.println("Fittest solution is "+ 
+	    		Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest)) 
+	    		+" with "+ fittest.getFitnessValue() +" fitness.");
 	}
 }
