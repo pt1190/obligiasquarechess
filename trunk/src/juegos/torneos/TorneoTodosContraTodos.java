@@ -4,7 +4,6 @@ import juegos.Partida;
 import juegos.agentes.AgenteAleatorio;
 import juegos.agentes.AgenteMiniMaxSqChess;
 import juegos.base.*;
-import juegos.tateti.Tateti;
 import juegos.squareChess.SquareChess;;
 
 /** Torneo que hace jugar a todos los agentes contra todos los agentes, jugando

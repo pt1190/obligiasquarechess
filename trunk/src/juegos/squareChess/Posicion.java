@@ -1,8 +1,18 @@
 package juegos.squareChess;
 
+/**
+ * Representación de una posición en el tablero.
+ */
 public class Posicion
 {
+	/**
+	 * Coordenada x de la posición
+	 */
 	public final int x;
+	
+	/**
+	 * Coordenada y de la posición
+	 */
 	public final int y;
 	
 	public Posicion(int x, int y)
@@ -11,19 +21,36 @@ public class Posicion
 		this.y = y;
 	}
 	
+	/**
+	 * Retorna una nueva instancia de la clase con 
+	 * sus respectivos valores en las coordenadas
+	 */
 	public Posicion clone()
 	{
 		return new Posicion(this.x, this.y);
 	}
 	
+	/**
+	 * Se realiza un movimiento respecto a las coordenadas
+	 * de la instancia. 
+	 * @param 	x	Incremento para la coordenada x	
+	 * @param 	y	Incremento para la coordenada y
+	 * @return		Nueva instancia con las coordenadas nuevas
+	 */
 	public Posicion mover(int x, int y)
 	{
 		return new Posicion(this.x + x, this.y + y);
 	}
 	
+	/**
+	 * Representación de la posición en String.
+	 * Se realiza la conversión de por ej. (0,0) a A1 para
+	 * mantener la coordenada en valores standards.
+	 */
 	public String toString()
 	{
-		return "(" + this.x + "," + this.y + ")";
+		int posy = this.y + 1;
+		return SquareChess.alfabeto.charAt(this.x) + "," + posy;
 	}
 	
 	@Override
@@ -41,6 +68,12 @@ public class Posicion
 		return false;
 	}
 	
+	/**
+	 * TODO Que hace este método?
+	 * @param pos1
+	 * @param pos2
+	 * @return
+	 */
 	public static Posicion[] linea(Posicion pos1, Posicion pos2)
 	{
 		double deltaX = Math.abs(pos2.x - pos1.x);

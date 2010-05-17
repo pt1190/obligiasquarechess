@@ -1,30 +1,53 @@
 package juegos.squareChess;
 
-import java.util.Arrays;
-
+import org.jgap.BulkFitnessFunction;
 import org.jgap.Chromosome;
 import org.jgap.Configuration;
 import org.jgap.DeltaFitnessEvaluator;
 import org.jgap.Gene;
 import org.jgap.Genotype;
 import org.jgap.IChromosome;
-import org.jgap.InvalidConfigurationException;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
-
-
 import juegos.agentes.AgenteAleatorio;
 import juegos.agentes.AgenteMiniMaxSqChess;
 import juegos.agentes.AgenteGeneticoSqChess;
 import juegos.base.Agente;
 import juegos.Partida;
-public class EvolucionAgente {
+
+/** 
+ * Obtiene una función heurística óptima para utilizar en el Square Chess.
+ * Los individuos se representan mediante vectores de 6 números, representando
+ * los siguientes conceptos:
+ * 		<li> Factor cantidad de fichas del jugador
+ * 		<li> Factor cantidad de fichas del oponente
+ * 		<li> Factor cantidad de cuadrados parciales del jugador
+ * 		<li> Factor cantidad de cuadrados parciales del oponente
+ * 		<li> Factor cantidad de cuadrados completos del jugador
+ * 		<li> Factor cantidad de cuadrados completos del oponente
+ * <br>
+ * La función de aptitud se define como la cantidad de partidas ganadas frente
+ * a un agente que utiliza la técnica MiniMax con poda Alfa-Beta. Por lo tanto
+ * se busca maximizar esta función para ir obteniendo las heurísticas que más
+ * ganen.
+ * <br>
+ * La población con 100 individuos iniciados al azar.
+ * Los operadores genéticos son los de la configuración por defecto de JGAP.
+ * La evolución termina cuando se encuentra una solución (aptitud 0) o luego de 
+ * 1000 generaciones.
+ * 
+ * @see AgenteGeneticoSqChess
+ */
+public class EvolucionAgenteGenSqChess {
 	
-	public static AgenteGeneticoSqChess EvolucionarAgenteSqChess(int poblacionInicial, int generaciones) throws Exception
+	public static final BulkFitnessFunction FITNESS_FUNCTION = new SqChessBulkFitnessFunction();
+	
+	public static AgenteGeneticoSqChess EvolucionarAgenteGenSqChess(int poblacionInicial, int generaciones) throws Exception
 	{
 		Configuration conf = new DefaultConfiguration();
 		Configuration.reset();
 		conf.setFitnessEvaluator(new DeltaFitnessEvaluator());
+		conf.setBulkFitnessFunction(FITNESS_FUNCTION);
 		
 		Gene[] sampleGenes = new Gene[6];
 	    for (int i = 0; i < 6; i++) {
@@ -32,7 +55,7 @@ public class EvolucionAgente {
 	    }
 	    IChromosome sampleChromosome = new Chromosome(conf, sampleGenes);
 	    conf.setSampleChromosome(sampleChromosome);
-	    conf.setSelectFromPrevGen(10);
+	    conf.setSelectFromPrevGen(0.1);
 	    conf.setPreservFittestIndividual(true);
 	    conf.setPopulationSize(poblacionInicial);
 	    Genotype population = Genotype.randomInitialGenotype(conf);
@@ -41,7 +64,7 @@ public class EvolucionAgente {
 	    long startTime = System.currentTimeMillis();
 	    for (int i = 1; i < generaciones; i++) {
 	    	
-    		//Competencias
+    		// Competencias
     		IChromosome[] cromosomas = population.getPopulation().toChromosomes();
     		for (int k = 0; k < cromosomas.length; k++)
     		{
@@ -99,5 +122,11 @@ public class EvolucionAgente {
 			genes[i] = (Double)chromosome.getGene(i).getAllele();
 		}
 		return genes;
+	}
+	
+	public static void main(String[] args) throws Exception
+	{
+		AgenteGeneticoSqChess best = EvolucionarAgenteGenSqChess(100, 1000);
+		System.out.println(best.toString());
 	}
 }

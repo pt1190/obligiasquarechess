@@ -11,35 +11,84 @@ import juegos.base.Jugador;
 import juegos.base.Movimiento;
 import juegos.base._Juego;
 
+/**
+ * Lógica del juego Square Chess (Fang Qí)<br><br> 
+ * El mismo tiene las siguientes etapas:
+ * <li> Etapa 1: Rellenar el tablero intentando formar cuadrados
+ * 		bloqueando cuadrados del oponente. 
+ * <li> Etapa 2: Quitar tantas fichas del oponente que no formen 
+ * 		cuadrado como cantidad de cuadrados formados en la etapa 
+ * 		anterior. De no haber formado cuadrados se quita una 
+ * 		ficha del oponente.
+ * <li> Etapa 3: Cada jugador debe mover una de sus fichas para
+ * 		formar cuadrados y proceder a quitarle tantas fichas al 
+ * 		oponente como cantidad de nuevos cuadrados formados.<br>
+ * <br>El juego finaliza cuando el jugador 1 le quitó todas las
+ * fichas al jugador 2. El jugador 1 se declara como ganador. 
+ */
 public class SquareChess extends _Juego {
+	
+	/**
+	 * Instancia del juego
+	 */
 	public static Juego JUEGO = new SquareChess(7,8, "Blancas", "Negras");
 	
+	/**
+	 * Ancho del tablero
+	 */
 	private final int ancho;
 	
+	/**
+	 * Alto del tablero
+	 */
 	private final int alto;
 	
+	/**
+	 * Determina la cantidad de jugadas seguidas en las cuales
+	 * ningún jugador come una ficha de su contrincante.
+	 */
 	private final int maxMovidasSinComer = 20;
 	
-	public final String alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	/**
+	 * Alfabeto para hacer la conversión de las posiciones
+	 * a modo standard.
+	 */
+	public static final String alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	
-	public SquareChess(int alto, int ancho, String primero, String segundo) {
+	/**
+	 * Constructor del juego. 
+	 * @param alto		Ancho del tablero
+	 * @param ancho		Alto del tablero
+	 * @param primero	Nombre representativo del primer jugador
+	 * @param segundo	Nombre representativo del segundo jugador
+	 */
+	public SquareChess(int alto, int ancho, String primero, String segundo) 
+	{
 		super("SquareChess", primero, segundo);
 		this.alto = alto;
 		this.ancho = ancho;
 	}
 
-	// Tablero de prueba para la prueba de las siguientes etapas del juego
+	/**
+	 *  Tablero de prueba para la prueba de las siguientes etapas del juego
+	 */
 	private final int[][] TABLERO_PRUEBA = {
-			{0, -1,  0, -1, -1, -1, -1},
+			{ 0, -1,  0, -1, -1, -1, -1},
 			{-1,  0,  0, -1, -1, -1, -1},
 			{-1, -1, -1, -1,  1,  1, -1},
-			{-1, -1, -1, -1,  1, -1, 1},
+			{-1, -1, -1, -1,  1, -1,  1},
 			{-1, -1, -1, -1, -1, -1, -1},
 			{-1, -1, -1, -1, -1, -1, -1},
 			{-1, -1, -1, -1, -1, -1, -1},
-			{-1, -1, -1, -1, -1, -1, -1},
+			{-1, -1, -1, -1, -1, -1, -1}
 			};
 	
+	/**
+	 * Inicialización del tablero 
+	 * @param alto	Alto del tablero
+	 * @param ancho	Ancho del tablero
+	 * @return		Matriz de alto x ancho inicializado (celdas en -1)
+	 */
 	private static int[][] tableroVacio(int alto, int ancho)
 	{
 		int[][] tablero = new int[ancho][alto];
@@ -49,23 +98,37 @@ public class SquareChess extends _Juego {
 			{
 				tablero[x][y] = -1;
 			}
-		}
-		
+		}		
 		return tablero;
 	}
 
 	@Override
-	public Estado inicio(Jugador... jugadores) {
+	public Estado inicio(Jugador... jugadores) 
+	{
 		return new EstadoInitSqChess(0, tableroVacio(alto, ancho), 0);
 		//return new EstadoMoverSqChess(300, TABLERO_PRUEBA, 1, 7);
 	}
 	
+	/**
+	 * Representación de un estado general del juego Square Chess
+	 */
 	public class EstadoSqChess implements Estado {
 
+		/**
+		 * Número que representa el turno actual
+		 */
 		protected final int turno;
 		
+		/**
+		 * El tablero del juego
+		 */
 		protected final int[][] tablero;
 		
+		/**
+		 * Cantidad de movidas sin comer
+		 * TODO Acordarse de resetear esta variable en el momento que
+		 * 		se sale del bucle
+		 */
 		protected final int movidasSinComer;
 		
 		public EstadoSqChess(int turno, int[][] tablero, int movidasSinComer)
@@ -81,22 +144,26 @@ public class SquareChess extends _Juego {
 		}
 		
 		@Override
-		public Juego juego() {
+		public Juego juego() 
+		{
 			return SquareChess.this;
 		}
 
 		@Override
-		public Jugador[] jugadores() {
+		public Jugador[] jugadores() 
+		{
 			return jugadores;
 		}
 
 		@Override
-		public Movimiento[] movimientos(Jugador jugador) {
+		public Movimiento[] movimientos(Jugador jugador) 
+		{
 			return new Movimiento[0];
 		}
 
 		@Override
-		public Double resultado(Jugador jugador) {
+		public Double resultado(Jugador jugador) 
+		{
 			if (turno <= alto*ancho)
 				return null;
 			
@@ -120,7 +187,8 @@ public class SquareChess extends _Juego {
 		}
 
 		@Override
-		public Estado siguiente(Movimiento movimiento) {
+		public Estado siguiente(Movimiento movimiento)
+		{
 			return null;
 		}
 		
@@ -129,6 +197,12 @@ public class SquareChess extends _Juego {
 			return contarFichas(-1);
 		}
 		
+		/**
+		 * Contador de cuadrados completos para un jugador 
+		 * @param jugador	índice del jugador
+		 * @return			Número de cuadrados que tiene el 
+		 * 					jugador con el índice determinado  
+		 */
 		public int contarCuadrados(int jugador)
 		{
 			int cuadrados = 0;
@@ -137,11 +211,61 @@ public class SquareChess extends _Juego {
 					if (tablero[x][y] == jugador && tablero[x+1][y] == jugador && tablero[x][y+1] == jugador && tablero[x+1][y+1] == jugador)
 						cuadrados++;
 				}		
-			}
-			
+			}			
 			return cuadrados;
 		}
 		
+		/**
+		 * Obtiene la cantidad de cuadrados parciales de un jugador.
+	     * Los cuadrados parciales se definen como 3 fichas de un jugador
+	     * organizadas de tal manera que solo falta colocar una sola ficha
+	     * para formar un cuadrado.
+		 * 
+		 * @param idxJugador 	índice del jugador a verificar (0 = blanco, 1 = negro)
+		 * @return 				Número de cuadrados parciales.
+		 */
+		public double cuadradosParciales(int idxJugador)
+		{
+			int idxOponente = idxJugador == 0 ? 1 : 0;			
+			int[][] tablero = this.getTablero();
+			int ancho = tablero.length;
+			int alto = tablero[0].length;
+			double val = 0;
+			for (int x = 0; x < ancho-1; x++)
+			{
+				for (int y = 0; y < alto-1; y++)
+				{
+					if (tablero[x][y] == idxOponente || tablero[x+1][y] == idxOponente || tablero[x][y+1] == idxOponente || tablero[x+1][y+1] == idxOponente)
+						continue;
+					
+					if (tablero[x][y] == idxJugador && tablero[x+1][y] == idxJugador && tablero[x][y+1] == idxJugador && tablero[x+1][y+1] == idxJugador)
+					{
+						val += 1.0;
+						continue;
+					}
+					
+					if (tablero[x][y] == idxJugador)
+						val += 0.25;
+					
+					if (tablero[x+1][y] == idxJugador)
+						val += 0.25;
+					
+					if (tablero[x+1][y+1] == idxJugador)
+						val += 0.25;
+					
+					if (tablero[x][y+1] == idxJugador)
+						val += 0.25;
+				}
+			}			
+			return val;
+		}
+
+		/**
+		 * Obtiene la cantidad de fichas en el tablero según
+		 * el tipo de ficha que se desea buscar.
+		 * @param tipoFicha	tipo de ficha a buscar 
+		 * @return 			Cantidad de fichas correspondiente al tipo de ficha buscado
+		 */
 		public int contarFichas(int tipoFicha)
 		{
 			int fichas = 0;
@@ -150,12 +274,19 @@ public class SquareChess extends _Juego {
 					if (tablero[x][y] == tipoFicha)
 						fichas++;
 				}		
-			}
-			
+			}			
 			return fichas;
 		}
 		
-		protected boolean formaCuadrado(Posicion pos, int jugador, int[][] tablero) {
+		/**
+		 * Chequea que se puede formar un cuadrado
+		 * @param pos		Posición desde la cuál chequear
+		 * @param jugador	Jugador que se desea chequear
+		 * @param tablero	Tablero a consultar
+		 * @return			True si puede formar un cuadrado, de lo contrario false
+		 */
+		protected boolean formaCuadrado(Posicion pos, int jugador, int[][] tablero)
+		{
 			Posicion[] rodeantes = new Posicion[8];
 			rodeantes[0] = new Posicion(pos.x - 1, pos.y);
 			rodeantes[1] = new Posicion(pos.x - 1, pos.y - 1);
@@ -164,8 +295,7 @@ public class SquareChess extends _Juego {
 			rodeantes[4] = new Posicion(pos.x + 1, pos.y);
 			rodeantes[5] = new Posicion(pos.x + 1, pos.y + 1);
 			rodeantes[6] = new Posicion(pos.x, pos.y + 1);
-			rodeantes[7] = new Posicion(pos.x - 1, pos.y + 1);
-			
+			rodeantes[7] = new Posicion(pos.x - 1, pos.y + 1);			
 			for (int i = 0; i < 8; i+= 2) {
 				Posicion pos0 = rodeantes[i];
 				if (pos0.x < 0 || pos0.x >= ancho || pos0.y < 0 || pos0.y >= alto)
@@ -181,11 +311,14 @@ public class SquareChess extends _Juego {
 				if (tablero[pos0.x][pos0.y] == jugador && tablero[pos1.x][pos1.y] == jugador && tablero[pos2.x][pos2.y] == jugador) {
 					return true;
 				}
-			}
-			
+			}			
 			return false;
 		}
 		
+		/**
+		 * Se obtiene una copia del tablero de esta instancia del juego. 
+		 * @return Matriz representando el tablero actual.
+		 */
 		protected int[][] copiarTablero()
 		{
 			int[][] copia = new int[ancho][alto];
@@ -200,15 +333,14 @@ public class SquareChess extends _Juego {
 		}
 		
 		@Override
-		public String toString() {
-			String salida = "  ";
-			
+		public String toString()
+		{
+			String salida = "  ";			
 			for (int x = 0; x < alto; x++)
 			{
 				salida += (x+1) + " ";
 			}
-			salida += "\n";
-			
+			salida += "\n";			
 			for (int x = 0; x < ancho; x++) {
 				salida += alfabeto.charAt(x) + " ";
 				for (int y = 0; y < alto; y++) {
@@ -219,8 +351,7 @@ public class SquareChess extends _Juego {
 						salida += jugadores[tablero[x][y]].toString().substring(0,1) + " ";
 				}
 				salida += "\n";
-			}
-			
+			}			
 			if (this.getClass().equals(EstadoInitSqChess.class))
 				salida += "\nColocar ficha";
 			else if (this.getClass().equals(EstadoMoverSqChess.class))
@@ -236,14 +367,21 @@ public class SquareChess extends _Juego {
 		}
 	}
 	
+	/**
+	 * Representación de un estado inicial del juego.
+	 * Los estados iniciales pertenecen a la primer etapa del juego.
+	 * @see SquareChess
+	 */
 	public class EstadoInitSqChess extends EstadoSqChess {
 		
-		public EstadoInitSqChess(int turno, int[][] tablero, int movidasSinComer) {
+		public EstadoInitSqChess(int turno, int[][] tablero, int movidasSinComer)
+		{
 			super(turno, tablero, movidasSinComer);
 		}
 
 		@Override
-		public Movimiento[] movimientos(Jugador jugador) {
+		public Movimiento[] movimientos(Jugador jugador)
+		{
 			if (!jugador.equals(getJugador()) || resultado(jugador) != null)
 				return new Movimiento[0];
 			Movimiento[] movs = new Movimiento[celdasVacias()];
@@ -261,29 +399,48 @@ public class SquareChess extends _Juego {
 			return movs;
 		}
 		
-		public class MovimientoInitSqChess implements Movimiento {
+		/**
+		 * Representación de un movimiento posible en la primer etapa del juego.
+		 */
+		public class MovimientoInitSqChess implements Movimiento 
+		{
+			/**
+			 * Posición actual
+			 * @see Posicion
+			 */
+			public final Posicion posicion;
 			
-			//Casillas de accion
-			public final Posicion posicion; //Origen o posicion
-			
-			public MovimientoInitSqChess(Posicion pos) {
+			public MovimientoInitSqChess(Posicion pos)
+			{
 				this.posicion = pos;
 			}
 			
 			@Override
-			public Estado estado() {
+			public Estado estado()
+			{
 				return EstadoInitSqChess.this;
 			}
 
 			@Override
-			public Jugador jugador() {
+			public Jugador jugador()
+			{
 				return getJugador();
 			}
 			
-			public int indiceJugador() {
+			/**
+			 * Índice del jugador actual
+			 * @return	Número que representa al jugador actual
+			 */
+			public int indiceJugador()
+			{
 				return turno % jugadores.length;
 			}
 			
+			/**
+			 * Representación de la posición en String.
+			 * Se realiza la conversión de por ej. (0,0) a A1 para
+			 * mantener la coordenada en valores standards.
+			 */
 			@Override
 			public String toString()
 			{
@@ -293,7 +450,8 @@ public class SquareChess extends _Juego {
 		}
 
 		@Override
-		public Estado siguiente(Movimiento movimiento) {
+		public Estado siguiente(Movimiento movimiento)
+		{
 			MovimientoInitSqChess movSC = (MovimientoInitSqChess)movimiento;
 			if (this.tablero[movSC.posicion.x][movSC.posicion.y] != -1)
 				return this;
@@ -323,11 +481,22 @@ public class SquareChess extends _Juego {
 		}
 	}
 	
-	//Estado de remover una ficha
+	/**
+	 * Representación de un estado de remover fichas en el juego.
+	 * Estos estados pertenecen a la segunda etapa del juego. 
+	 * @see SquareChess
+	 */
 	private class EstadoRemoverSqChess extends EstadoSqChess {
 		
+		/**
+		 * Cantidad de fichas a remover inicialmente.
+		 * Necesario para cuando se comienza con la segunda etapa.
+		 */
 		private final int[] removerIniciales;
 		
+		/**
+		 * Turno del jugador actual
+		 */
 		private final int jugadorTurno;
 		
 		public EstadoRemoverSqChess(int turno, int[][] tablero, int jugadorTurno)
@@ -346,7 +515,8 @@ public class SquareChess extends _Juego {
 		}		
 
 		@Override
-		public Movimiento[] movimientos(Jugador jugador) {
+		public Movimiento[] movimientos(Jugador jugador)
+		{
 			if (!jugador.equals(getJugador()) || resultado(jugador) != null)
 				return new Movimiento[0];
 			
@@ -409,8 +579,15 @@ public class SquareChess extends _Juego {
 			return super.resultado(jugador);
 		}
 		
+		/**
+		 * Representación de un movimiento posible en la segunda etapa del juego.
+		 */
 		public class MovimientoRemoverSqChess implements Movimiento {
 			
+			/**
+			 * Posición actual
+			 * @see Posicion
+			 */
 			private final Posicion posicion;
 			
 			public MovimientoRemoverSqChess(Posicion posFicha)
@@ -419,15 +596,22 @@ public class SquareChess extends _Juego {
 			}
 			
 			@Override
-			public Estado estado() {
+			public Estado estado()
+			{
 				return EstadoRemoverSqChess.this;
 			}
 
 			@Override
-			public Jugador jugador() {
+			public Jugador jugador()
+			{
 				return jugadores[jugadorTurno];
 			}
 			
+			/**
+			 * Representación de la posición en String.
+			 * Se realiza la conversión de por ej. (0,0) a A1 para
+			 * mantener la coordenada en valores standards.
+			 */
 			@Override
 			public String toString()
 			{
@@ -443,7 +627,8 @@ public class SquareChess extends _Juego {
 		}
 		
 		@Override
-		public Estado siguiente(Movimiento movimiento) {
+		public Estado siguiente(Movimiento movimiento)
+		{
 			MovimientoRemoverSqChess mov = (MovimientoRemoverSqChess)movimiento;
 			if (mov == null)
 				return this;
@@ -505,8 +690,16 @@ public class SquareChess extends _Juego {
 		}
 	}
 	
+	/**
+	 * Representación de un estado de mover fichas en el juego.
+	 * Estos estados pertenecen a la tercer etapa del juego. 
+	 * @see SquareChess
+	 */
 	private class EstadoMoverSqChess extends EstadoSqChess {
 		
+		/**
+		 * Índice del jugador actual
+		 */
 		private final int idxJugador;
 		
 		public EstadoMoverSqChess(int turno, int[][] tablero, int idxJugador, int movidasSinComer)
@@ -515,10 +708,21 @@ public class SquareChess extends _Juego {
 			this.idxJugador = idxJugador;
 		}
 				
+		/**
+		 * Representación de un movimiento posible en la tercer etapa del juego.
+		 */
 		public class MovimientoMoverSqChess implements Movimiento {
 			
+			/**
+			 * Posición actual de la ficha
+			 * @see Posicion
+			 */
 			private final Posicion posFicha;
 			
+			/**
+			 * Posición destino de la ficha
+			 * @see Posicion
+			 */
 			private final Posicion destinoFicha;
 			
 			public MovimientoMoverSqChess(Posicion posFicha, Posicion destinoFicha)
@@ -528,24 +732,27 @@ public class SquareChess extends _Juego {
 			}
 			
 			@Override
-			public Estado estado() {
+			public Estado estado()
+			{
 				return EstadoMoverSqChess.this;
 			}
 
 			@Override
-			public Jugador jugador() {
+			public Jugador jugador()
+			{
 				return jugadores[idxJugador];
 			}
 			
 			@Override
 			public String toString()
 			{
-				return "" + alfabeto.charAt(posFicha.x) + (int)posFicha.y + " a " + alfabeto.charAt(destinoFicha.x) + (int)destinoFicha.y;
+				return "" + alfabeto.charAt(posFicha.x) + posFicha.y + " a " + alfabeto.charAt(destinoFicha.x) + destinoFicha.y;
 			}
 		}
 
 		@Override
-		public Movimiento[] movimientos(Jugador jugador) {
+		public Movimiento[] movimientos(Jugador jugador)
+		{
 			if (jugador != getJugador() || resultado(jugador) != null)
 				return new Movimiento[0];
 			
@@ -566,6 +773,11 @@ public class SquareChess extends _Juego {
 			return movs.toArray(new Movimiento[movs.size()]);
 		}
 		
+		/**
+		 * Obtener movimientos posibles para mover una ficha. 
+		 * @param pos	Posición desde la cual chequear los posibles movimientos a realizar
+		 * @return		Lista con todos los movimientos posibles
+		 */
 		private ArrayList<MovimientoMoverSqChess> movimientosFicha(Posicion pos)
 		{
 			ArrayList<MovimientoMoverSqChess> aMovs = new ArrayList<MovimientoMoverSqChess>();
@@ -609,7 +821,8 @@ public class SquareChess extends _Juego {
 		}
 
 		@Override
-		public Estado siguiente(Movimiento movimiento) {
+		public Estado siguiente(Movimiento movimiento)
+		{
 			MovimientoMoverSqChess mov = (MovimientoMoverSqChess)movimiento;
 			
 			if (tablero[mov.posFicha.x][mov.posFicha.y] != idxJugador)
@@ -664,7 +877,8 @@ public class SquareChess extends _Juego {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception 
+	{
 		System.out.println(Partida.completa(SquareChess.JUEGO, 
 				new AgenteConsola(), 
 				new AgenteMiniMaxSqChess()
