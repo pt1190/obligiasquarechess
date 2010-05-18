@@ -21,7 +21,7 @@ public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 		{
 			Agente jugador = new AgenteGeneticoSqChess(chromosomeToArray(cromosomas[k]));;
 			int partidasGanadas = 0;
-			for (int j = 0; j < cromosomas.length / 10; j++)
+			for (int j = 0; j < cromosomas.length * 0.5; j++)
 			{
 				Agente oponente;
 				int idxOp = k;
@@ -40,7 +40,7 @@ public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 					oponente = new AgenteAleatorio();
 				}
 				
-				Partida partida = new Partida(SquareChess.JUEGO, jugador, oponente);
+				Partida partida = Partida.completa(SquareChess.JUEGO, jugador, oponente);
 				if (partida.resultados()[0] == 1)
 				{
 					partidasGanadas++;

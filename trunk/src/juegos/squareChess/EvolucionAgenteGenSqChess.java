@@ -5,13 +5,15 @@ import java.util.Arrays;
 import org.jgap.BulkFitnessFunction;
 import org.jgap.Chromosome;
 import org.jgap.Configuration;
-import org.jgap.DeltaFitnessEvaluator;
+import org.jgap.DefaultFitnessEvaluator;
 import org.jgap.Gene;
 import org.jgap.Genotype;
 import org.jgap.IChromosome;
 import org.jgap.InvalidConfigurationException;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
+import org.jgap.impl.IntegerGene;
+
 import juegos.agentes.AgenteGeneticoSqChess;
 
 /** 
@@ -39,18 +41,19 @@ import juegos.agentes.AgenteGeneticoSqChess;
  */
 public class EvolucionAgenteGenSqChess {
 	
-	public static final int POPULATION_SIZE = 100;
+	public static final int POPULATION_SIZE = 10;
 	public static final long LOG_TIME = 100;
 	public static final BulkFitnessFunction FITNESS_FUNCTION = new SqChessBulkFitnessFunction();
 	
 	public static boolean endEvolution(Genotype population, int generation) {
-		return generation > 1000 || population.getFittestChromosome().getFitnessValue() == 10;
+		return generation > 50 || population.getFittestChromosome().getFitnessValue() == 5;
 	}
 	
 	public static void main(String[] args) throws InvalidConfigurationException {
 		Configuration conf = new DefaultConfiguration();
 		Configuration.reset();
-		conf.setFitnessEvaluator(new DeltaFitnessEvaluator());
+		conf.setFitnessEvaluator(new DefaultFitnessEvaluator());
+		conf.setPreservFittestIndividual(true);
 		conf.setBulkFitnessFunction(FITNESS_FUNCTION);
 		
 		Gene[] sampleGenes = new Gene[6];
@@ -59,8 +62,7 @@ public class EvolucionAgenteGenSqChess {
 	    }
 	    IChromosome sampleChromosome = new Chromosome(conf, sampleGenes);
 	    conf.setSampleChromosome(sampleChromosome);
-	    conf.setSelectFromPrevGen(0.1);
-	    conf.setPreservFittestIndividual(true);
+	    
 	    conf.setPopulationSize(POPULATION_SIZE);
 	    Genotype population = Genotype.randomInitialGenotype(conf);
 
