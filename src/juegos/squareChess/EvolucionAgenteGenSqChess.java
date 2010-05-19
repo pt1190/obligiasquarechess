@@ -14,10 +14,13 @@ import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
 import org.jgap.impl.IntegerGene;
 
+import juegos.Partida;
+import juegos.agentes.AgenteConsola;
 import juegos.agentes.AgenteGeneticoSqChess;
+import juegos.agentes.AgenteMiniMaxSqChess;
 
 /** 
- * Obtiene una función heurística óptima para utilizar en el Square Chess.
+ * Evolución de una heurística para utilizar en el juego Square Chess.
  * Los individuos se representan mediante vectores de 6 números, representando
  * los siguientes conceptos:
  * 		<li> Factor cantidad de fichas del jugador
@@ -26,16 +29,20 @@ import juegos.agentes.AgenteGeneticoSqChess;
  * 		<li> Factor cantidad de cuadrados parciales del oponente
  * 		<li> Factor cantidad de cuadrados completos del jugador
  * 		<li> Factor cantidad de cuadrados completos del oponente
- * <br>
+ * <br><br>
  * La función de aptitud se define como la cantidad de partidas ganadas frente
  * a un agente que utiliza la técnica MiniMax con poda Alfa-Beta. Por lo tanto
  * se busca maximizar esta función para ir obteniendo las heurísticas que más
  * ganen.
- * <br>
- * La población con 100 individuos iniciados al azar.
+ * <br><br>
+ * La población se inicializa con 10 individuos iniciados al azar con factores
+ * que varían entre -1 y 1. Como es de esperar, determinados factores pueden 
+ * ser beneficiosos y otros contraproducentes, es por eso que se decidió ese
+ * rango de valores.
+ * <br><br>
  * Los operadores genéticos son los de la configuración por defecto de JGAP.
- * La evolución termina cuando se encuentra una solución (aptitud 0) o luego de 
- * 1000 generaciones.
+ * La evolución termina cuando se encuentra una solución (aptitud 15) o luego 
+ * de 20 generaciones.
  * 
  * @see AgenteGeneticoSqChess
  */
@@ -46,7 +53,7 @@ public class EvolucionAgenteGenSqChess {
 	public static final BulkFitnessFunction FITNESS_FUNCTION = new SqChessBulkFitnessFunction();
 	
 	public static boolean endEvolution(Genotype population, int generation) {
-		return generation > 50 || population.getFittestChromosome().getFitnessValue() == 5;
+		return generation > 20 || population.getFittestChromosome().getFitnessValue() == 5;
 	}
 	
 	public static void main(String[] args) throws InvalidConfigurationException {
@@ -73,8 +80,8 @@ public class EvolucionAgenteGenSqChess {
 	    	if (System.currentTimeMillis() - lastTime > LOG_TIME) {
 	    		lastTime = System.currentTimeMillis();
 	    		IChromosome fittest = population.getFittestChromosome();
-	    		System.out.println("\tEvolution time: "+ (lastTime - startTime) 
-	    				+" ms, generation "+ i +", fittest = "+
+	    		System.out.println("\tEvolution time: "+ (lastTime - startTime) / 1000 
+	    				+" sec, generation "+ i +", fittest = "+
 	    				Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest))
 	    				+" with "+ fittest.getFitnessValue() +" fitness.");	
 	    	}
@@ -82,10 +89,18 @@ public class EvolucionAgenteGenSqChess {
 	    }
 	    long endTime = System.currentTimeMillis();
 	    
-	    System.out.println("Total evolution time: "+ (endTime - startTime) +" ms");
+	    System.out.println("Total evolution time: "+ ((endTime - startTime) / 1000) +" sec");
 	    IChromosome fittest = population.getFittestChromosome();
 	    System.out.println("Fittest solution is "+ 
 	    		Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest)) 
 	    		+" with "+ fittest.getFitnessValue() +" fitness.");
+	    
+	    System.out.println();
+	    System.out.println("************** Prueba de heurística **************");
+	    Partida partida = Partida.completa(SquareChess.JUEGO, 
+	    		new AgenteGeneticoSqChess(SqChessBulkFitnessFunction.chromosomeToArray(fittest)), 
+				new AgenteMiniMaxSqChess());
+	    System.out.println(partida.toString());
+	    System.out.println(partida.resultados()[0] == 1 ? "Heurística acertada" : "Heurística no acertada");
 	}
 }

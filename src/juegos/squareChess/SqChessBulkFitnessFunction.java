@@ -10,6 +10,15 @@ import org.jgap.BulkFitnessFunction;
 import org.jgap.IChromosome;
 import org.jgap.Population;
 
+/**
+ * Función de aptitud para la evolución de una heurística.
+ * Se implementó como un BulkFitnessFunction ya que dado la
+ * estrategía de determinar que un cromosoma es mejor que otro
+ * viene dado por el resultado de los demás cromosomas por lo
+ * que la asignación de aptitud depende de la población.
+ * 
+ * @see EvolucionAgenteSqChess
+ */
 public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 
 	private static final long serialVersionUID = 2162546917792237253L;
