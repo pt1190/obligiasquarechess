@@ -446,7 +446,7 @@ public class SquareChess extends _Juego {
 			public String toString()
 			{
 				int posy = posicion.y + 1;
-				return "" + alfabeto.charAt(posicion.x) + posy;
+				return "Coloca " + alfabeto.charAt(posicion.x) + posy;
 			}			
 		}
 
@@ -617,7 +617,7 @@ public class SquareChess extends _Juego {
 			public String toString()
 			{
 				int posy = posicion.y + 1;
-				return "" + alfabeto.charAt(posicion.x) + posy;
+				return "Remueve " + alfabeto.charAt(posicion.x) + posy;
 			}
 		}
 		
@@ -760,7 +760,9 @@ public class SquareChess extends _Juego {
 			@Override
 			public String toString()
 			{
-				return "" + alfabeto.charAt(posFicha.x) + posFicha.y + " a " + alfabeto.charAt(destinoFicha.x) + destinoFicha.y;
+				int posyo = posFicha.y + 1;
+				int posyd = destinoFicha.y + 1;
+				return "Mueve de " + alfabeto.charAt(posFicha.x) + posyo + " a " + alfabeto.charAt(destinoFicha.x) + posyd;
 			}
 		}
 
