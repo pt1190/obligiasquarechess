@@ -138,9 +138,9 @@ public class AgenteGeneticoSqChess implements Agente {
 	
 	public String toString()
 	{
-		return "[" + fFichas + "/" + fFichasOp + ", " + 
-			   fCuadradosParciales + "/" + fCuadradosParcialesOp + ", " +
-			   fCuadrados + "/" + fCuadradosOp + "]";
+		return "[" + fFichas + ", " + fFichasOp + ", " + 
+			   fCuadradosParciales + ", " + fCuadradosParcialesOp + ", " +
+			   fCuadrados + ", " + fCuadradosOp + "]";
 	}
 
 	@Override
