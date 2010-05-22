@@ -662,13 +662,26 @@ public class SquareChess extends _Juego {
 						movs = sig.movimientos(jugadores[1]);
 						if (movs == null || movs.length <= 0)
 						{
-							return new EstadoMoverSqChess(turnoSig, tableroSig, 0, 0);
+							EstadoMoverSqChess estadoSig = new EstadoMoverSqChess(turnoSig, tableroSig, 0, 0);
+							movs = estadoSig.movimientos(jugadores[0]);
+							if (movs == null || movs.length <= 0)
+							{
+								return new EstadoMoverSqChess(turnoSig, tableroSig, 1, 0);
+							}
+							return estadoSig;
+							
 						}
 						return sig;
 					}
 					else
 					{
-						return new EstadoMoverSqChess(turnoSig, tableroSig, 0, 0);
+						EstadoMoverSqChess estadoSig = new EstadoMoverSqChess(turnoSig, tableroSig, 0, 0);
+						movs = estadoSig.movimientos(jugadores[0]);
+						if (movs == null || movs.length <= 0)
+						{
+							return new EstadoMoverSqChess(turnoSig, tableroSig, 1, 0);
+						}
+						return estadoSig;
 					}
 				}
 				
