@@ -22,15 +22,22 @@ import org.jgap.Population;
 public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 
 	private static final long serialVersionUID = 2162546917792237253L;
+	
+	private static final double porcentajeCompetencia = 0.2;
+	
+	private static final int minCompetidores = 6;
 
 	@Override
 	public void evaluate(Population pop){
 		IChromosome[] cromosomas = pop.toChromosomes();
+		
+		int nPartidas = Math.max((int)Math.round(cromosomas.length * porcentajeCompetencia), minCompetidores);
 		for (int k = 0; k < cromosomas.length; k++)
 		{
 			Agente jugador = new AgenteGeneticoSqChess(chromosomeToArray(cromosomas[k]));;
 			int partidasGanadas = 0;
-			for (int j = 0; j < cromosomas.length * 0.5; j++)
+			
+			for (int j = 0; j < nPartidas; j++)
 			{
 				Agente oponente;
 				int idxOp = k;
