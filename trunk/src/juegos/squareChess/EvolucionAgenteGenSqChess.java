@@ -12,10 +12,8 @@ import org.jgap.IChromosome;
 import org.jgap.InvalidConfigurationException;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
-import org.jgap.impl.IntegerGene;
 
 import juegos.Partida;
-import juegos.agentes.AgenteConsola;
 import juegos.agentes.AgenteGeneticoSqChess;
 import juegos.agentes.AgenteMiniMaxSqChess;
 
@@ -49,18 +47,17 @@ import juegos.agentes.AgenteMiniMaxSqChess;
 public class EvolucionAgenteGenSqChess {
 	
 	public static final int POPULATION_SIZE = 10;
-	public static final long LOG_TIME = 100;
+	public static final long LOG_TIME = 10;
 	public static final BulkFitnessFunction FITNESS_FUNCTION = new SqChessBulkFitnessFunction();
 	
 	public static boolean endEvolution(Genotype population, int generation) {
-		return generation > 20 || population.getFittestChromosome().getFitnessValue() == 5;
+		return generation > 20;// || population.getFittestChromosome().getFitnessValue() == 15;
 	}
 	
 	public static void main(String[] args) throws InvalidConfigurationException {
 		Configuration conf = new DefaultConfiguration();
 		Configuration.reset();
 		conf.setFitnessEvaluator(new DefaultFitnessEvaluator());
-		conf.setPreservFittestIndividual(true);
 		conf.setBulkFitnessFunction(FITNESS_FUNCTION);
 		
 		Gene[] sampleGenes = new Gene[6];
