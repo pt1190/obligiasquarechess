@@ -1,5 +1,6 @@
 package juegos.squareChess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.jgap.BulkFitnessFunction;
@@ -16,6 +17,7 @@ import org.jgap.impl.DoubleGene;
 import juegos.Partida;
 import juegos.agentes.AgenteGeneticoSqChess;
 import juegos.agentes.AgenteMiniMaxSqChess;
+import juegos.torneos.TorneoTodosContraTodos;
 
 /** 
  * Evolución de una heurística para utilizar en el juego Square Chess.
@@ -62,7 +64,10 @@ public class EvolucionAgenteGenSqChess {
 		
 		Gene[] sampleGenes = new Gene[6];
 	    for (int i = 0; i < 6; i++) {
-	    	sampleGenes[i] = new DoubleGene(conf, -1, 1);
+	    	if (i % 2 == 0)
+	    		sampleGenes[i] = new DoubleGene(conf, 0, 1);
+	    	else
+	    		sampleGenes[i] = new DoubleGene(conf, -1, 0);
 	    }
 	    IChromosome sampleChromosome = new Chromosome(conf, sampleGenes);
 	    conf.setSampleChromosome(sampleChromosome);
@@ -88,14 +93,44 @@ public class EvolucionAgenteGenSqChess {
 	    
 	    System.out.println("Total evolution time: "+ ((endTime - startTime) / 1000) +" sec");
 	    IChromosome fittest = population.getFittestChromosome();
+	    
+	    ArrayList aFittests = new ArrayList();
+	    IChromosome[] cromosomas = population.getPopulation().toChromosomes();
+	    for (int i = 0; i < cromosomas.length; i++)
+	    {
+	    	if (cromosomas[i].getFitnessValue() == fittest.getFitnessValue())
+	    	{
+	    		aFittests.add(new AgenteGeneticoSqChess(SqChessBulkFitnessFunction.chromosomeToArray(cromosomas[i])));
+	    	}
+	    }
+	    AgenteGeneticoSqChess mejorAgente = null;
+	    if (aFittests.size() == 1)
+	    {
+	    	mejorAgente = (AgenteGeneticoSqChess)aFittests.get(0);
+	    }
+	    else
+	    {
+		    AgenteGeneticoSqChess[] agentes = new AgenteGeneticoSqChess[aFittests.size()];
+		    for (int i = 0; i < aFittests.size(); i++)
+		    	agentes[i] = (AgenteGeneticoSqChess)aFittests.get(i);
+		    TorneoTodosContraTodos torneo = new TorneoTodosContraTodos(SquareChess.JUEGO, agentes );
+		    mejorAgente = agentes[0];
+		    for (int i = 1; i < agentes.length; i++)
+		    {
+		    	if (torneo.partidasGanadas(agentes[i]) > torneo.partidasGanadas(mejorAgente))
+		    	{
+		    		mejorAgente = agentes[i];
+		    	}
+		    }
+	    }
 	    System.out.println("Fittest solution is "+ 
-	    		Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest)) 
+	    		mejorAgente.toString()
 	    		+" with "+ fittest.getFitnessValue() +" fitness.");
 	    
 	    System.out.println();
 	    System.out.println("************** Prueba de heurística **************");
 	    Partida partida = Partida.completa(SquareChess.JUEGO, 
-	    		new AgenteGeneticoSqChess(SqChessBulkFitnessFunction.chromosomeToArray(fittest)), 
+	    		mejorAgente, 
 				new AgenteMiniMaxSqChess());
 	    System.out.println(partida.toString());
 	    System.out.println(partida.resultados()[0] == 1 ? "Heurística acertada" : "Heurística no acertada");
