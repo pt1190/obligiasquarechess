@@ -41,8 +41,7 @@ import juegos.torneos.TorneoTodosContraTodos;
  * rango de valores.
  * <br><br>
  * Los operadores genéticos son los de la configuración por defecto de JGAP.
- * La evolución termina cuando se encuentra una solución (aptitud 15) o luego 
- * de 20 generaciones.
+ * La evolución termina luego de 20 generaciones.
  * 
  * @see AgenteGeneticoSqChess
  */
@@ -70,6 +69,7 @@ public class EvolucionAgenteGenSqChess {
 		Configuration conf = new DefaultConfiguration();
 		Configuration.reset();
 		conf.setFitnessEvaluator(new DefaultFitnessEvaluator());
+		conf.setPreservFittestIndividual(true);
 		conf.setBulkFitnessFunction(FITNESS_FUNCTION);
 		
 		Gene[] sampleGenes = new Gene[6];
@@ -92,8 +92,8 @@ public class EvolucionAgenteGenSqChess {
 	    	if (System.currentTimeMillis() - lastTime > LOG_TIME) {
 	    		lastTime = System.currentTimeMillis();
 	    		IChromosome fittest = population.getFittestChromosome();
-	    		System.out.println("\tEvolution time: "+ (lastTime - startTime) / 1000 
-	    				+" sec, generation "+ i +", fittest = "+
+	    		System.out.println("\tEvolution time: "+ milisToTimeString(lastTime - startTime) 
+	    				+", generation "+ i +", fittest = "+
 	    				Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest))
 	    				+" with "+ fittest.getFitnessValue() +" fitness.");	
 	    	}
@@ -151,12 +151,16 @@ public class EvolucionAgenteGenSqChess {
 	    System.out.println(result == 1 ? "Heurística acertada" : (result == 0 ? "Heurística equivalente" : "Heurística no acertada"));
 	}
 	
+	/**
+	 * Convierte milisegundos a minutos y segundos.
+	 * @param milis Cantidad de milisegundos a convertir
+	 * @return String con minutos y segundos
+	 */
 	private static String milisToTimeString(long milis)
 	{
 		long totalSeconds = milis / 1000;
 		long minutes = totalSeconds / 60;
-		long seconds = totalSeconds % 60;
-		
+		long seconds = totalSeconds % 60;		
 		return minutes + "m " + seconds + "s";
 	}
 }

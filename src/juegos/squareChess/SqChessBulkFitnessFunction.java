@@ -24,31 +24,29 @@ public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 	private static final long serialVersionUID = 2162546917792237253L;
 	
 	private static final double porcentajeCompetencia = 0.4;
-	
-	private static final int minCompetidores = 0;
 
 	@Override
 	public void evaluate(Population pop){
 		IChromosome[] cromosomas = pop.toChromosomes();
 		
-		int nPartidas = Math.max((int)Math.round(cromosomas.length * porcentajeCompetencia), minCompetidores);
+		int nPartidas = (int)Math.round(cromosomas.length * porcentajeCompetencia);
 		
 		int[] aJugados = new int[nPartidas];
 		
 		for (int k = 0; k < cromosomas.length; k++)
 		{
-			//Reinicar array de indices de jugadores contra los cuales ya jugó
+			// Inicializar array de indices de jugadores contra los cuales ya jugó
 			for (int i = 0; i < nPartidas; i++)
 			{
 				aJugados[i] = -1;
 			}
 			
-			//jugador actual
+			// Jugador actual
 			Agente jugador = new AgenteGeneticoSqChess(chromosomeToArray(cromosomas[k]));;
 			
 			int partidasGanadas = 0;
 			
-			//Partidas contra oponentes
+			// Partidas contra oponentes
 			for (int j = 0; j < nPartidas; j++)
 			{
 				Agente oponente;
@@ -56,13 +54,13 @@ public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 				boolean hayOponente = false;
 				while (!hayOponente)
 				{
-					//Elegir oponente
+					// Elegir oponente
 					idxOp = (int)Math.round(Math.random() * (cromosomas.length + 1));
 					
-					//Fijarse que no sea si mismo
+					// Fijarse que no sea si mismo
 					hayOponente = idxOp != k;
 					
-					//Revisar que no se juegue contra el mismo si hay suficientes
+					// Revisar que no se juegue contra el mismo si hay suficientes
 					if (nPartidas <= cromosomas.length)
 					{
 						for (int i = 0; i < j; i++)
@@ -73,19 +71,18 @@ public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 								break;
 							}
 						}
-					}
-						
+					}						
 				}
 				
-				//Agregar al array contra quien jugó
+				// Agregar al array contra quien jugó
 				aJugados[j] = idxOp;
 				
-				//Si es un indice dentro del array tomar el agente
+				// Si es un indice dentro del array tomar el agente
 				if (idxOp < cromosomas.length)
 				{					
 					oponente = new AgenteGeneticoSqChess(chromosomeToArray(cromosomas[idxOp]));
 				}
-				//Sino usar el agente minimax
+				// Sino usar el agente minimax
 				else if (idxOp == cromosomas.length)
 				{
 					oponente = new AgenteMiniMaxSqChess();
@@ -96,9 +93,10 @@ public class SqChessBulkFitnessFunction extends BulkFitnessFunction {
 					oponente = new AgenteAleatorio();
 				}
 				
-				//Partida
+				// Partida
 				Partida partida = Partida.completa(SquareChess.JUEGO, jugador, oponente);
-				//Si gana sumar el resultado
+				
+				// Si gana sumar el resultado
 				if (partida.resultados()[0] == 1)
 				{
 					partidasGanadas++;
