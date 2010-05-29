@@ -114,6 +114,7 @@ public class EvolucionAgenteGenSqChess {
 		    for (int i = 0; i < aFittests.size(); i++)
 		    	agentes[i] = (AgenteGeneticoSqChess)aFittests.get(i);
 		    TorneoTodosContraTodos torneo = new TorneoTodosContraTodos(SquareChess.JUEGO, agentes );
+		    torneo.completar();
 		    mejorAgente = agentes[0];
 		    for (int i = 1; i < agentes.length; i++)
 		    {
