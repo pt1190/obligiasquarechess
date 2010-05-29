@@ -52,10 +52,20 @@ public class EvolucionAgenteGenSqChess {
 	public static final long LOG_TIME = 10;
 	public static final BulkFitnessFunction FITNESS_FUNCTION = new SqChessBulkFitnessFunction();
 	
-	public static boolean endEvolution(Genotype population, int generation) {
-		return generation > 20;// || population.getFittestChromosome().getFitnessValue() == 15;
+	/**
+	 * Indicador de cuando se termina la evolución basado en la cantidad
+	 * de generaciones (parametrizado inicialmente en 20 generaciones)
+	 * @param 	population	Población actual
+	 * @param 	generation	Generación actual
+	 * @return True si esa generación sobrepasa el valor determinado
+	 */
+	public static boolean endEvolution(int generation) {
+		return generation > 20;
 	}
 	
+	/**
+	 * Programa principal para la evolución de la heurística.
+	 */
 	public static void main(String[] args) throws InvalidConfigurationException {
 		Configuration conf = new DefaultConfiguration();
 		Configuration.reset();
@@ -78,22 +88,24 @@ public class EvolucionAgenteGenSqChess {
 	    System.out.println("Evolving.");
 	    long startTime = System.currentTimeMillis();
 	    long lastTime = startTime;
-	    for (int i = 1; !endEvolution(population, i); i++) {	    	
+	    for (int i = 1; !endEvolution(i); i++) {	    	
 	    	if (System.currentTimeMillis() - lastTime > LOG_TIME) {
 	    		lastTime = System.currentTimeMillis();
 	    		IChromosome fittest = population.getFittestChromosome();
-	    		System.out.println("\tEvolution time: "+ milisToTimeString(lastTime - startTime) 
-	    				+", generation "+ i +", fittest = "+
+	    		System.out.println("\tEvolution time: "+ (lastTime - startTime) / 1000 
+	    				+" sec, generation "+ i +", fittest = "+
 	    				Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest))
 	    				+" with "+ fittest.getFitnessValue() +" fitness.");	
 	    	}
 	    	population.evolve();
 	    }
 	    long endTime = System.currentTimeMillis();
-	    
+
 	    System.out.println("Total evolution time: "+ milisToTimeString(endTime - startTime));
 	    IChromosome fittest = population.getFittestChromosome();
 	    
+	    // Se procede a seleccionar a las mejores heurísticas para realizar un
+	    // torneo todos contra todos de manera de obtener el mejor de todos.
 	    ArrayList<AgenteGeneticoSqChess> aFittests = new ArrayList<AgenteGeneticoSqChess>();
 	    IChromosome[] cromosomas = population.getPopulation().toChromosomes();
 	    for (int i = 0; i < cromosomas.length; i++)
@@ -113,7 +125,7 @@ public class EvolucionAgenteGenSqChess {
 		    AgenteGeneticoSqChess[] agentes = new AgenteGeneticoSqChess[aFittests.size()];
 		    for (int i = 0; i < aFittests.size(); i++)
 		    	agentes[i] = (AgenteGeneticoSqChess)aFittests.get(i);
-		    TorneoTodosContraTodos torneo = new TorneoTodosContraTodos(SquareChess.JUEGO, agentes );
+		    TorneoTodosContraTodos torneo = new TorneoTodosContraTodos(SquareChess.JUEGO, agentes);
 		    torneo.completar();
 		    mejorAgente = agentes[0];
 		    for (int i = 1; i < agentes.length; i++)
@@ -124,17 +136,19 @@ public class EvolucionAgenteGenSqChess {
 		    	}
 		    }
 	    }
-	    System.out.println("Fittest solution is "+ 
-	    		mejorAgente.toString()
+	    System.out.println("Fittest solution is "+ mejorAgente.toString()
 	    		+" with "+ fittest.getFitnessValue() +" fitness.");
 	    
+	    // Se realiza una última prueba de la heurística ganadora contra un
+	    // Agente Minimax para testear su efectividad
 	    System.out.println();
-	    System.out.println("************** Prueba de heurística **************");
+	    System.out.println("************** Prueba de heurística ganadora **************");
 	    Partida partida = Partida.completa(SquareChess.JUEGO, 
 	    		mejorAgente, 
 				new AgenteMiniMaxSqChess());
 	    System.out.println(partida.toString());
-	    System.out.println(partida.resultados()[0] == 1 ? "Heurística acertada" : "Heurística no acertada");
+	    double result = partida.resultados()[0];
+	    System.out.println(result == 1 ? "Heurística acertada" : (result == 0 ? "Heurística equivalente" : "Heurística no acertada"));
 	}
 	
 	private static String milisToTimeString(long milis)
