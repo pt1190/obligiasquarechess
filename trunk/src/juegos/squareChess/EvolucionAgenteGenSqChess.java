@@ -82,8 +82,8 @@ public class EvolucionAgenteGenSqChess {
 	    	if (System.currentTimeMillis() - lastTime > LOG_TIME) {
 	    		lastTime = System.currentTimeMillis();
 	    		IChromosome fittest = population.getFittestChromosome();
-	    		System.out.println("\tEvolution time: "+ (lastTime - startTime) / 1000 
-	    				+" sec, generation "+ i +", fittest = "+
+	    		System.out.println("\tEvolution time: "+ milisToTimeString(lastTime - startTime) 
+	    				+", generation "+ i +", fittest = "+
 	    				Arrays.toString(SqChessBulkFitnessFunction.chromosomeToArray(fittest))
 	    				+" with "+ fittest.getFitnessValue() +" fitness.");	
 	    	}
@@ -91,10 +91,10 @@ public class EvolucionAgenteGenSqChess {
 	    }
 	    long endTime = System.currentTimeMillis();
 	    
-	    System.out.println("Total evolution time: "+ ((endTime - startTime) / 1000) +" sec");
+	    System.out.println("Total evolution time: "+ milisToTimeString(endTime - startTime));
 	    IChromosome fittest = population.getFittestChromosome();
 	    
-	    ArrayList aFittests = new ArrayList();
+	    ArrayList<AgenteGeneticoSqChess> aFittests = new ArrayList<AgenteGeneticoSqChess>();
 	    IChromosome[] cromosomas = population.getPopulation().toChromosomes();
 	    for (int i = 0; i < cromosomas.length; i++)
 	    {
@@ -135,5 +135,14 @@ public class EvolucionAgenteGenSqChess {
 				new AgenteMiniMaxSqChess());
 	    System.out.println(partida.toString());
 	    System.out.println(partida.resultados()[0] == 1 ? "Heurística acertada" : "Heurística no acertada");
+	}
+	
+	private static String milisToTimeString(long milis)
+	{
+		long totalSeconds = milis / 1000;
+		long minutes = totalSeconds / 60;
+		long seconds = totalSeconds % 60;
+		
+		return minutes + "m " + seconds + "s";
 	}
 }
