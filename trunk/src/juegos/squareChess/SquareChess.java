@@ -200,7 +200,7 @@ public class SquareChess extends _Juego {
 		
 		/**
 		 * Contador de cuadrados completos para un jugador 
-		 * @param jugador	índice del jugador
+		 * @param jugador	Índice del jugador
 		 * @return			Número de cuadrados que tiene el 
 		 * 					jugador con el índice determinado  
 		 */
@@ -222,7 +222,7 @@ public class SquareChess extends _Juego {
 	     * organizadas de tal manera que solo falta colocar una sola ficha
 	     * para formar un cuadrado.
 		 * 
-		 * @param idxJugador 	índice del jugador a verificar (0 = blanco, 1 = negro)
+		 * @param idxJugador 	Índice del jugador a verificar (0 = blanco, 1 = negro)
 		 * @return 				Número de cuadrados parciales.
 		 */
 		public double cuadradosParciales(int idxJugador)
@@ -546,17 +546,14 @@ public class SquareChess extends _Juego {
 			if (idxMov < movimientos.length)
 			{
 				if (idxMov == 0)
-					return new Movimiento[0];
-				
+					return new Movimiento[0];				
 				Movimiento[] movsReales = new Movimiento[idxMov];
 				for (int i = 0; i < idxMov; i++)
 				{
 					movsReales[i] = movimientos[i];
-				}
-				
+				}				
 				return movsReales;
-			}
-			
+			}			
 			return movimientos;
 		}
 		
@@ -856,8 +853,7 @@ public class SquareChess extends _Juego {
 			tableroSig[mov.posFicha.x][mov.posFicha.y] = -1;
 			tableroSig[mov.destinoFicha.x][mov.destinoFicha.y] = idxJugador;
 			if (formaCuadrado(mov.destinoFicha, idxJugador, tableroSig))
-			{
-				
+			{				
 				EstadoRemoverSqChess estadoSig = new EstadoRemoverSqChess(turno + 1, tableroSig, idxJugador);
 				Movimiento[] movs = estadoSig.movimientos(jugadores[idxJugador]);
 				if (movs == null || movs.length == 0)

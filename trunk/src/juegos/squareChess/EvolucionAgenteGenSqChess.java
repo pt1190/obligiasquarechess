@@ -41,7 +41,8 @@ import juegos.torneos.TorneoTodosContraTodos;
  * rango de valores.
  * <br><br>
  * Los operadores genéticos son los de la configuración por defecto de JGAP.
- * La evolución termina luego de 20 generaciones.
+ * La evolución termina luego de 20 generaciones y de un último torneo con los
+ * mejores de la última generación.
  * 
  * @see AgenteGeneticoSqChess
  */
@@ -56,7 +57,7 @@ public class EvolucionAgenteGenSqChess {
 	 * de generaciones (parametrizado inicialmente en 20 generaciones)
 	 * @param 	population	Población actual
 	 * @param 	generation	Generación actual
-	 * @return True si esa generación sobrepasa el valor determinado
+	 * @return 				True si esa generación sobrepasa el valor determinado
 	 */
 	public static boolean endEvolution(int generation) {
 		return generation > 20;
@@ -69,7 +70,6 @@ public class EvolucionAgenteGenSqChess {
 		Configuration conf = new DefaultConfiguration();
 		Configuration.reset();
 		conf.setFitnessEvaluator(new DefaultFitnessEvaluator());
-		conf.setPreservFittestIndividual(true);
 		conf.setBulkFitnessFunction(FITNESS_FUNCTION);
 		
 		Gene[] sampleGenes = new Gene[6];
@@ -104,8 +104,8 @@ public class EvolucionAgenteGenSqChess {
 	    System.out.println("Total evolution time: "+ milisToTimeString(endTime - startTime));
 	    IChromosome fittest = population.getFittestChromosome();
 	    
-	    // Se procede a seleccionar a las mejores heurísticas para realizar un
-	    // torneo todos contra todos de manera de obtener el mejor de todos.
+	    // Se procede a seleccionar a las mejores heurísticas de la última generación para 
+	    // realizar un torneo todos contra todos de manera de obtener el mejor de todos.
 	    ArrayList<AgenteGeneticoSqChess> aFittests = new ArrayList<AgenteGeneticoSqChess>();
 	    IChromosome[] cromosomas = population.getPopulation().toChromosomes();
 	    for (int i = 0; i < cromosomas.length; i++)
@@ -148,13 +148,14 @@ public class EvolucionAgenteGenSqChess {
 				new AgenteMiniMaxSqChess());
 	    System.out.println(partida.toString());
 	    double result = partida.resultados()[0];
-	    System.out.println(result == 1 ? "Heurística acertada" : (result == 0 ? "Heurística equivalente" : "Heurística no acertada"));
+	    System.out.println(result == 1 ? "Heurística efectiva" : 
+	    	(result == 0 ? "Heurística aprox. equivalente" : "Heurística no efectiva"));
 	}
 	
 	/**
 	 * Convierte milisegundos a minutos y segundos.
-	 * @param milis Cantidad de milisegundos a convertir
-	 * @return String con minutos y segundos
+	 * @param 	milis 	Cantidad de milisegundos a convertir
+	 * @return 			String con minutos y segundos
 	 */
 	private static String milisToTimeString(long milis)
 	{
